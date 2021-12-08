@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdio.h>
-#include "trans.h"i
+#include "trans.h"
 #include <sys/mman.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -23,7 +23,7 @@ int server_save(int sd, int fd, uint64_t file_size){
         left_size-=packet_size;
     }
     free(receive_buff);
-    return 1;
+    return 0;
 }
 
 int server_read(int sd, int fd, uint64_t file_size){
@@ -40,6 +40,6 @@ int server_read(int sd, int fd, uint64_t file_size){
         left_size-=packet_size;
     }
     munmap(file_data);
-    return 1;
+    return 0;
 }
 

@@ -51,9 +51,9 @@ int main(int argc, char **argv) {
         memset(filename,0,sizeof(char)*PATH_MAX);
         memset(path,0,sizeof(char)*PATH_MAX);
 
-        recvn(sd, message, filename, PATH_MAX+sizeof(MSG));
+        recvn(sd, &message, filename, PATH_MAX);
         strcpy(path, root_dir);
-        strcat(path, filename);
+        strncat(path, filename, PATH_MAX);
 
         if(message.flag=='R'){
             printf("Receive a read request.\n");
@@ -61,14 +61,14 @@ int main(int argc, char **argv) {
 
             if (fd < 0) {
                 response.flag='N';  //not found
-                sendn(sd, response, NULL, 0);
+                sendn(sd, &response, NULL, 0);
                 perror("Open failed: ");
             }
             else{
                 response.flag='r';
                 uint64_t file_size = lseek(fd, 0, SEEK_END);
                 response.file_length=file_size;
-                sendn(sd, response, NULL, 0);
+                sendn(sd, &response, NULL, 0);
                 printf("Start remote read: %s \n", path);
                 server_read(sd, fd, file_size);
                 close(fd);
@@ -81,13 +81,13 @@ int main(int argc, char **argv) {
             fd = open(path, O_WRONLY | O_CREAT);
 
             if (fd < 0) {
-                response.flag='N';  //not found
-                sendn(sd, response, NULL, 0);
+                response.flag='N';  //error
+                sendn(sd, &response, NULL, 0);
                 perror("Open failed: ");
             }
             else{
                 response.flag='w';
-                sendn(sd, response, NULL, 0);
+                sendn(sd, &response, NULL, 0);
                 printf("Start remote write: %s \n", path);
                 server_save(sd, fd, message.file_length);
                 close(fd);

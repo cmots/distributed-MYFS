@@ -65,5 +65,5 @@ int recvn(int sd, MSG* msg, char* payload, int length){
 }
 
 char* get_filename(char* path){
-    return strrchr(path, '\');
+    return strrchr(path, '/');
 }

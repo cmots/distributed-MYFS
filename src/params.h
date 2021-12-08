@@ -26,6 +26,8 @@
 struct bb_state {
     FILE *logfile;
     char *rootdir;
+    char *metadir;
+    uint64_t threshold;
     int SD[4];
 };
 #define BB_DATA ((struct bb_state *) fuse_get_context()->private_data)

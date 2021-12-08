@@ -23,6 +23,7 @@
 */
 #include "config.h"
 #include "params.h"
+#include "bbfs.h"
 
 #include <ctype.h>
 #include <dirent.h>
@@ -41,52 +42,21 @@
 #include <sys/xattr.h>
 #endif
 
-#include "log.h"
-
-
-/** sizeof(char)=1 byte; sizeof(int)=4 byte; size_t & off_t : uint64_t
- *  ===============================================================
- *  | FLAG | data_size | offset | path_size |  path  |    data    |
- *  ===============================================================
- *  | 'C' |                         data                          |
- *  ===============================================================
-**/
-struct REQ_HEADER {
-    char FLAG;   //R, W, S (single write, value size < BUF_SIZE), C (continue to write), E
-    size_t data_size;  //the size of data, only used in S & E, does not include path
-    off_t offset;
-    int path_size;   //the size of path info. only used in FLAG R, W, S
-};
-
-/**
- *  ==============================================================
- *  | FLAG | data_size | offset | fd |             data          |
- *  ==============================================================
- *  | 'F' |                         data                         |
- *  ==============================================================
- */
-struct REP_HEADER {
-    //F & U only has flag
-    char FLAG;  //successful: S, failed: F, end of read: E, unknown: U
-    size_t data_size;  //In read, this is data len; In write, this is writen size; In fail, this is msg len
-    off_t offset;
-    int fd;
-};
 
 //  All the paths I see are relative to the root of the mounted
 //  filesystem.  In order to get to the underlying filesystem, I need to
 //  have the mountpoint.  I'll save it away early on in main(), and then
 //  whenever I need a path for something I'll call this to construct
 //  it.
-static void bb_fullpath(char fpath[PATH_MAX], const char *path)
-{
-    strcpy(fpath, BB_DATA->rootdir);
-    strncat(fpath, path, PATH_MAX); // ridiculously long paths will
+//static void bb_fullpath(char fpath[PATH_MAX], const char *path)
+//{
+//    strcpy(fpath, BB_DATA->rootdir);
+//    strncat(fpath, path, PATH_MAX); // ridiculously long paths will
 				    // break here
 
-    log_msg("    bb_fullpath:  rootdir = \"%s\", path = \"%s\", fpath = \"%s\"\n",
-	    BB_DATA->rootdir, path, fpath);
-}
+//    log_msg("    bb_fullpath:  rootdir = \"%s\", path = \"%s\", fpath = \"%s\"\n",
+//	    BB_DATA->rootdir, path, fpath);
+//}
 
 ///////////////////////////////////////////////////////////
 //
@@ -343,6 +313,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
     return retstat;
 }
 
+
 /** Read data from an open file
  *
  * Read should return exactly the number of bytes requested except
@@ -362,7 +333,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
     int retstat = 0;
-    
+    myfs_read(path);
     log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
 	    path, buf, size, offset, fi);
     // no need to get fpath on this one, since I work from fi->fh not the path
@@ -381,14 +352,6 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
  */
 // As  with read(), the documentation above is inconsistent with the
 // documentation for the write() system call.
-int myfs_write(const char *path, const char *buf, size_t size, off_t offset){
-    
-    if ((len = send(sd, buff, strlen(buff), 0)) < 0) {
-        printf("Send Error: %s (Errno: %d)\n", strerror(errno), errno);
-        exit(0);
-    }
-
-}
 
 int bb_write(const char *path, const char *buf, size_t size, off_t offset,
 	     struct fuse_file_info *fi)
@@ -911,7 +874,7 @@ void myfs_init(bb_state* bb_data, int* ports){
     
     int n = 4;
     char* address[4]=["10.0.54.2","10.0.54.2","10.0.54.3","10.0.54.3"];
-    int ports[argc-1];
+    int ports[4];
     int i,j=0;
 
     for(i=0;i<n;i++){
