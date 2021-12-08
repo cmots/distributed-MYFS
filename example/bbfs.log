@@ -1,0 +1,1802 @@
+
+bb_init()
+    conn:
+    proto_major = 7
+    proto_minor = 26
+    async_read = 1
+    max_write = 131072
+    max_readahead = 131072
+    capable = 00000ffb
+    want = 00000010
+    max_background = 0
+    congestion_threshold = 0
+    context:
+    fuse = da048780
+    uid = 0
+    gid = 0
+    pid = 0
+    private_data = da0472a0
+    logfile = da0482d0
+    rootdir = /home/csci4180/fuse-tutorial-2018-02-04/example/rootdir
+    umask = 00000
+
+bb_getattr(path="/.xdg-volume-info", statbuf=0x5ee47c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/.xdg-volume-info", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/.xdg-volume-info"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_getattr(path="/autorun.inf", statbuf=0x5e624c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/autorun.inf", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/autorun.inf"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd958002050
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd958002050
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5e624c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x58001fd0, filler=0x5f090bc0, offset=0, fi=0x5ee47c30)
+    readdir returned 0x0x7fd958002080
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd958002050
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd958002050
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/bogus.txt", statbuf=0x5ee47c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/bogus.txt", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/bogus.txt"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1839
+    st_mode = 0100664
+    st_nlink = 1
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 11
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af35e8
+    st_mtime = 0x61af35e8
+    st_ctime = 0x61af35e8
+
+bb_releasedir(path="/", fi=0x5ee47c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd958002050
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd958002050
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5e624c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd950001160
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd950001160
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5ee47c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x500010e0, filler=0x5f090bc0, offset=0, fi=0x5de01c30)
+    readdir returned 0x0x7fd950001190
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd950001160
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd950001160
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5de01c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd950001160
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd950001160
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5e624c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd950001160
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd950001160
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5ee47c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x500092c0, filler=0x5f090bc0, offset=0, fi=0x5de01c30)
+    readdir returned 0x0x7fd950001190
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd950001160
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd950001160
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5de01c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd950001160
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd950001160
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5e624c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd950001160
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd950001160
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5ee47c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x500093d0, filler=0x5f090bc0, offset=0, fi=0x5de01c30)
+    readdir returned 0x0x7fd950001190
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd950001160
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd950001160
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5de01c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd950001160
+    writepage = 0
+
+bb_opendir(path="/", fi=0x5e624c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd950001160
+    lock_owner = 0x0000000000000000
+    opendir returned 0x0x7fd9500094d0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5ee47c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x50009450, filler=0x5f090bc0, offset=0, fi=0x5de01c30)
+    readdir returned 0x0x7fd950009500
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd9500094d0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5de01c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd9500094d0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5e624c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd9500094d0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5ee47c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x50001160, filler=0x5f090bc0, offset=0, fi=0x5de01c30)
+    readdir returned 0x0x7fd950009500
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd9500094d0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5e624c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+
+bb_releasedir(path="/", fi=0x5de01c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd9500094d0
+    writepage = 0
+    direct_io = 0
+    opendir returned 0x0x7fd950011510
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+    keep_cache = 0
+    fh = 0x00007fd950011510
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5ee47c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x500011e0, filler=0x5f090bc0, offset=0, fi=0x5de01c30)
+    readdir returned 0x0x7fd950011540
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd950011510
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd950011510
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5de01c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd950011510
+    writepage = 0
+
+bb_opendir(path="/", fi=0x5e624c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    direct_io = 0
+    opendir returned 0x0x7fd9500094d0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+    keep_cache = 0
+    fh = 0x00007fd950011510
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5ee47c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x50001260, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd950009500
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd9500094d0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd9500094d0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x58002170, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lock_owner = 0x0000000000000000
+    opendir returned 0x0x7fd958012690
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd958012690
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x580021f0, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd9580126c0
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd958012690
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd958012690
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd958012690
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd958012690
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x58002270, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x580022f0, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x58002370, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x580023f0, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x58002470, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x580024f0, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x58002470, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x580024f0, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x58002470, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x580024f0, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x58002470, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x580024f0, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x5e624c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd9500094d0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5ee47c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_readdir(path="/", buf=0x500016f0, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd950009500
+calling filler with name ..
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd9500094d0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/autorun.inf", statbuf=0x5e624c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/autorun.inf", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/autorun.inf"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_releasedir(path="/", fi=0x5e624c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd9500094d0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd9500094d0
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_getattr(path="/", statbuf=0x5e624c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af6197
+    st_ctime = 0x61af6197
+
+bb_getattr(path="/8kfile", statbuf=0x5ee47c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_getattr(path="/8kfile", statbuf=0x5de01c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_mknod(path="/8kfile", mode=0100664, dev=0)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    open returned 5
+    close returned 0
+
+bb_getattr(path="/8kfile", statbuf=0x5ee47c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 728
+    st_mode = 0100664
+    st_nlink = 1
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 4096
+    st_blocks = 0
+    st_atime = 0x61af634e
+    st_mtime = 0x61af634e
+    st_ctime = 0x61af634e
+
+bb_open(path"/8kfile", fi=0x5de01cf0)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    open returned 5
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000005
+    lock_owner = 0x0000000000000000
+
+bb_getxattr(path = "/8kfile", name = "security.capability", value = 0x00000000, size = 0)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lgetxattr returned -1
+    ERROR lgetxattr: No data available
+
+bb_write(path="/8kfile", buf=0x5ee49060, size=4096, offset=0, fi=0x5ee47d50)
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000005
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000005
+    lock_owner = 0x0000000000000000
+    pwrite returned 4096
+
+bb_write(path="/8kfile", buf=0x5de03060, size=4096, offset=4096, fi=0x5de01d50)
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000005
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000005
+    lock_owner = 0x0000000000000000
+    pwrite returned 4096
+
+bb_flush(path="/8kfile", fi=0x5e624cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000005
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000005
+    lock_owner = 0xd3ee08d06f6f800b
+
+bb_release(path="/8kfile", fi=0x5ee47cf0)
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000005
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000005
+    lock_owner = 0x0000000000000000
+    close returned 0
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af634e
+    st_ctime = 0x61af634e
+
+bb_getattr(path="/", statbuf=0x5e624c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af634e
+    st_ctime = 0x61af634e
+
+bb_getattr(path="/8kfile", statbuf=0x5ee47c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 728
+    st_mode = 0100664
+    st_nlink = 1
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 8192
+    st_blksize = 4096
+    st_blocks = 16
+    st_atime = 0x61af634e
+    st_mtime = 0x61af634e
+    st_ctime = 0x61af634e
+
+bb_open(path"/8kfile", fi=0x5de01cf0)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    open returned 5
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000005
+    lock_owner = 0x0000000000000000
+
+bb_getxattr(path = "/8kfile", name = "security.capability", value = 0x00000000, size = 0)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lgetxattr returned -1
+    ERROR lgetxattr: No data available
+
+bb_truncate(path="/8kfile", newsize=0)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    truncate returned 0
+
+bb_getattr(path="/8kfile", statbuf=0x5ee47b70)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 728
+    st_mode = 0100664
+    st_nlink = 1
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 4096
+    st_blocks = 0
+    st_atime = 0x61af634e
+    st_mtime = 0x61af65b0
+    st_ctime = 0x61af65b0
+
+bb_getxattr(path = "/8kfile", name = "security.capability", value = 0x00000000, size = 0)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lgetxattr returned -1
+    ERROR lgetxattr: No data available
+
+bb_write(path="/8kfile", buf=0x5e626060, size=4096, offset=0, fi=0x5e624d50)
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000005
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000005
+    lock_owner = 0x0000000000000000
+    pwrite returned 4096
+
+bb_write(path="/8kfile", buf=0x5ee49060, size=4096, offset=4096, fi=0x5ee47d50)
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000005
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000005
+    lock_owner = 0x0000000000000000
+    pwrite returned 4096
+
+bb_flush(path="/8kfile", fi=0x5de01cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000005
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000005
+    lock_owner = 0x5067b4ed11a537dc
+
+bb_release(path="/8kfile", fi=0x5e624cf0)
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000005
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000005
+    lock_owner = 0x0000000000000000
+    close returned 0
+
+bb_getattr(path="/", statbuf=0x5ee47c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af634e
+    st_ctime = 0x61af634e
+
+bb_getattr(path="/.git", statbuf=0x5de01c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/.git", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_getattr(path="/.git", statbuf=0x5e624c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/.git", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_opendir(path="/", fi=0x5ee47c30)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    opendir returned 0x0x7fd95800a650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x5de01c10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1838
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af62ca
+    st_mtime = 0x61af634e
+    st_ctime = 0x61af634e
+
+bb_readdir(path="/", buf=0x580024f0, filler=0x5f090bc0, offset=0, fi=0x5e624c30)
+    readdir returned 0x0x7fd95800a680
+calling filler with name ..
+calling filler with name 8kfile
+calling filler with name .
+calling filler with name bogus.txt
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/8kfile", statbuf=0x5ee47c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 728
+    st_mode = 0100664
+    st_nlink = 1
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 8192
+    st_blksize = 4096
+    st_blocks = 16
+    st_atime = 0x61af634e
+    st_mtime = 0x61af65b0
+    st_ctime = 0x61af65b0
+
+bb_getattr(path="/.gitignore", statbuf=0x5de01c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/.gitignore", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_getattr(path="/bogus.txt", statbuf=0x5e624c40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/bogus.txt", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/bogus.txt"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1839
+    st_mode = 0100664
+    st_nlink = 1
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 11
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61af35e8
+    st_mtime = 0x61af35e8
+    st_ctime = 0x61af35e8
+
+bb_releasedir(path="/", fi=0x5de01c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fd95800a650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fd95800a650
+    lock_owner = 0x0000000000000000
