@@ -31,7 +31,7 @@ int server_read(int sd, int fd, uint64_t file_size){
     int packet_size = BUFF_SIZE;
     uint64_t offset = 0;
 
-    char* file_data = (uint8_t*)mmap(0, file_size, PROT_READ, MAP_SHARED, ifd, 0);
+    char* file_data = (uint8_t*)mmap(0, file_size, PROT_READ, MAP_SHARED, fd, 0);
 
     while(left_size>0){
         packet_size = left_size < BUFF_SIZE ? left_size: BUFF_SIZE;

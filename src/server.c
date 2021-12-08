@@ -58,7 +58,6 @@ int main(int argc, char **argv) {
         if(message.flag=='R'){
             printf("Receive a read request.\n");
             fd = open(path, O_RDONLY);
-
             if (fd < 0) {
                 response.flag='N';  //not found
                 sendn(sd, &response, NULL, 0);
@@ -67,6 +66,7 @@ int main(int argc, char **argv) {
             else{
                 response.flag='r';
                 uint64_t file_size = lseek(fd, 0, SEEK_END);
+                posix_fadvise(fd, 0, file_size, POSIX_FADV_WILLNEED);
                 response.file_length=file_size;
                 sendn(sd, &response, NULL, 0);
                 printf("Start remote read: %s \n", path);

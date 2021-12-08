@@ -357,7 +357,7 @@ int bb_write(const char *path, const char *buf, size_t size, off_t offset,
 	     struct fuse_file_info *fi)
 {
     int retstat = 0;
-    
+    is_write = true;
     log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
 	    path, buf, size, offset, fi
 	    );
@@ -443,9 +443,10 @@ int bb_release(const char *path, struct fuse_file_info *fi)
     log_msg("\nbb_release(path=\"%s\", fi=0x%08x)\n",
 	  path, fi);
     log_fi(fi);
-
+    myfs_write(path);
     // We need to close the file.  Had we allocated any resources
     // (buffers etc) we'd need to free them here as well.
+    is_write = false;
     return log_syscall("close", close(fi->fh), 0);
 }
 
