@@ -1,15 +1,17 @@
 #include "trans.h"
 #include "log.h"
-#include "param.h"
+#include "params.h"
 #include <unistd.h>
 #include <pthread.h>
 #include <math.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
 
 #define PATH_MAX 240
 #define BUFF_SIZE 8*1024
 
-bool is_write = false;
+int is_write = 0;
 
 typedef struct thread_data {
     int sd;
@@ -18,6 +20,9 @@ typedef struct thread_data {
     int fd;
     int offset;
 } THREAD_DATA;
+
+void *p_scatter(void *);
+void *p_get(void *);
 
 static void bb_fullpath(char fpath[PATH_MAX], const char *path) {
     strcpy(fpath, BB_DATA->rootdir);
@@ -46,19 +51,20 @@ int recover(int sd, int fd, uint64_t file_size, int down_id, char* filename) {
     uint64_t pos[3];
     pos[3]=0;
     uint64 common_split_len = get_split_size(file_size);
+    uint64_t recover_len=0;
     switch (down_id) {
         case 0:
-            uint64 recover_len = common_split_len;
+            recover_len = common_split_len;
             pos[0]=common_split_len;
             pos[1]=common_split_len+common_split_len;
             break;
         case 1:
-            uint64 recover_len = common_split_len;
+            recover_len = common_split_len;
             pos[0]=0;
             pos[1]=common_split_len+common_split_len;
             break;
         case 2:
-            uint64 recover_len = file_size-common_split_len-common_split_len;
+            recover_len = file_size-common_split_len-common_split_len;
             pos[0]=0;
             pos[1]=common_split_len;
             break;
@@ -68,11 +74,11 @@ int recover(int sd, int fd, uint64_t file_size, int down_id, char* filename) {
 
     uint64_len recover_offset = down_id*common_split_len;
 
-    sendn(BB_DATA->SD[3], &message, filename, PATH_MAX);
-    recvn(BB_DATA->SD[3], &response, NULL, 0);
+    sendm(BB_DATA->SD[3], &message, filename, PATH_MAX);
+    recvm(BB_DATA->SD[3], &response, NULL, 0);
     if (response.flag == 'N') {
         //useless
-        log_msg("Fatal: Remote file doesn't exist: Server %d: %s \n", i, filename);
+        log_msg("Fatal: Remote file doesn't exist: Server %d: %s \n", down_id, filename);
         return -1;
     }
     if (response.flag == 'r') {
@@ -94,7 +100,10 @@ int recover(int sd, int fd, uint64_t file_size, int down_id, char* filename) {
             offset += packet_size;
             left_size -= packet_size;
         }
+        free(receive_buff);
+        free(recover_buff);
     }
+    munmap(file_data, file_size);
 }
 
 int get_parity(char *source_data, char *parity_buff, uint64_t file_size) {
@@ -108,9 +117,10 @@ int get_parity(char *source_data, char *parity_buff, uint64_t file_size) {
     return 0;
 }
 
+
 int myfs_write(char *filename) {
     char *local_path[PATH_MAX];
-    bb_fullpath(local_path, path);
+    bb_fullpath(local_path, filename);
     int fd = open(local_path, O_RDONLY);
     if (fd < 0) {
         msg_log("File doesn't exist: %s\n", local_path);
@@ -152,13 +162,13 @@ int myfs_write(char *filename) {
             }
             //test & build trans connection
             MSG response;
-            int ret = sendn(ths[i].sd, &message, filename, PATH_MAX);
+            int ret = sendm(ths[i].sd, &message, filename, PATH_MAX);
             if (ret < 0) {
                 log_msg("Impossible! Server %d is down\n", i);
                 continue;
             }
 
-            recvn(BB_DATA->SD[i], &response, NULL, 0);
+            recvm(BB_DATA->SD[i], &response, NULL, 0);
             if (response.flag == 'N') {
                 //useless
                 log_msg("Remote file cannot create: server %d: %s \n", i, filename);
@@ -185,16 +195,16 @@ int myfs_write(char *filename) {
         //small file
         log_msg("Start remote write (small file mode) -> %s\n", filename);
         message.file_length = real_size;
-
+        int sd;
         for (i = 0; i < 4; i++) {
             sd = BB_DATA->SD[i];
             MSG response;
-            int ret = sendn(sd, &message, filename, PATH_MAX);
+            int ret = sendm(sd, &message, filename, PATH_MAX);
             if (ret < 0) {
                 log_msg("Impossible! Server %d is down\n", i);
                 return -2;
             }
-            recvn(sd, &response, NULL, 0);
+            recvm(sd, &response, NULL, 0);
             ths[i].sd = sd;
             ths[i].file_size = real_size;
             ths[i].buff = file_data;
@@ -204,14 +214,21 @@ int myfs_write(char *filename) {
     }
     for(i=0;i<4;i++)
         pthread_join(pid[i],NULL);
-    munmap(file_data);
+    munmap(file_data, real_size);
     close(fd);
+
+    fd = open(meta_path, O_WRONLY | O_CREAT);
+    char* temptr;
+    meta_size_buff = ultostr(real_size, temptr, 10);
+    write(fd, meta_size_buff, 9);
+    close(fd);
+    remove(local_path);
     return 0;
 }
 
 int myfs_read(char *filename) {
     char *local_path[PATH_MAX];
-    bb_fullpath(local_path, path);
+    bb_fullpath(local_path, filename);
     int fd = open(local_path, O_RDONLY);
 
     if (fd > 0) {
@@ -226,7 +243,7 @@ int myfs_read(char *filename) {
     get_meta_path(meta_path, filename);
     fd = open(meta_path, O_RDONLY);
     if (fd > 0) {
-        pread(fd, meta_size_buff, 9);
+        read(fd, meta_size_buff, 9);
         char *temptr;
         real_size = strtoul(meta_size_buff, temptr, 10);
     } else {
@@ -257,7 +274,7 @@ int myfs_read(char *filename) {
         for (i = 0; i < 3; i++) {
             MSG response;
             ths[i].sd = BB_DATA->SD[i];
-            int ret = sendn(ths[i].sd, &message, filename, PATH_MAX);
+            int ret = sendm(ths[i].sd, &message, filename, PATH_MAX);
             if (ret < 0) {
                 down_server_id = i;
                 if(down_server_id>=0)
@@ -272,7 +289,7 @@ int myfs_read(char *filename) {
                 }
                 continue;
             }
-            recvn(BB_DATA->SD[i], &response, NULL, 0);
+            recvm(BB_DATA->SD[i], &response, NULL, 0);
             if (response.flag == 'N') {
                 //useless
                 log_msg("Fatal: Remote file doesn't exist: Server %d: %s \n", i, filename);
@@ -297,7 +314,7 @@ int myfs_read(char *filename) {
             else{
                 int recover_len=common_split_len;
             }
-            recover(sd, fd, common_split_len, recover_len);
+            recover(BB_DATA->sd[down_server_id], fd, real_size, down_server_id, filename);
         }
         for(i=0;i<3;i++)
             pthread_join(pid[i],NULL);
@@ -310,13 +327,13 @@ int myfs_read(char *filename) {
         MSG response;
         while (ret < 0) {
             sd = BB_DATA->SD[i];
-            ret = sendn(sd, &message, filename, PATH_MAX);
+            ret = sendm(sd, &message, filename, PATH_MAX);
             if (ret < 0) {
                 log_msg("Server %d is down\n", i);
                 i++;
                 continue;
             }
-            recvn(sd, &response, NULL, 0);
+            recvm(sd, &response, NULL, 0);
         }
         if (response.flag == 'N') {
             //useless
@@ -385,7 +402,7 @@ void *p_scatter(void *arg) {
 
     while (left_size > 0) {
         packet_size = left_size < BUFF_SIZE ? left_size : BUFF_SIZE;
-        sendn(sd, th->file_data + offset, packet_size);
+        sendn(th->sd, th->buff + offset, packet_size);
         offset += packet_size;
         left_size -= packet_size;
     }

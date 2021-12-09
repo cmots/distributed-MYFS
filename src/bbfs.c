@@ -357,14 +357,14 @@ int bb_write(const char *path, const char *buf, size_t size, off_t offset,
 	     struct fuse_file_info *fi)
 {
     int retstat = 0;
-    is_write = true;
+    is_write = 1;
     log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
 	    path, buf, size, offset, fi
 	    );
     // no need to get fpath on this one, since I work from fi->fh not the path
     log_fi(fi);
 
-    return log_syscall("myfs_write", myfs_write(path, buf, size, offset), 0);
+    return log_syscall("pwrite", pwrite(fi->fh, buf, size, offset), 0);
 }
 
 /** Get file system statistics
@@ -443,10 +443,12 @@ int bb_release(const char *path, struct fuse_file_info *fi)
     log_msg("\nbb_release(path=\"%s\", fi=0x%08x)\n",
 	  path, fi);
     log_fi(fi);
-    myfs_write(path);
+    
+    if(is_write)
+        myfs_write(path);
     // We need to close the file.  Had we allocated any resources
     // (buffers etc) we'd need to free them here as well.
-    is_write = false;
+    is_write = 0;
     return log_syscall("close", close(fi->fh), 0);
 }
 
@@ -871,11 +873,10 @@ void bb_usage()
     abort();
 }
 
-void myfs_init(bb_state* bb_data, int* ports){
+void myfs_init(struct bb_state* bb_data, int* ports){
     
     int n = 4;
-    char* address[4]=["10.0.54.2","10.0.54.2","10.0.54.3","10.0.54.3"];
-    int ports[4];
+    char* address[4]={"10.0.54.2","10.0.54.2","10.0.54.3","10.0.54.3"};
     int i,j=0;
 
     for(i=0;i<n;i++){
@@ -938,19 +939,14 @@ int main(int argc, char *argv[])
     argv[argc-1] = NULL;
     argc--;
     
-    int ports[4];
-    int i=0;
-    for(i=0;i<4;i++){
-        ports[i] = atoi(argv[argc-2]);
-        argv[argc-2] = argv[argc-1];
-        argv[argc-1] = NULL;
-        argc--;
-    
-    }
+    bb_data->threshold=10*1024*1024;
+    bb_data->metadir=realpath("meta", NULL);
 
     bb_data->logfile = log_open();
     
-    myfs_init(bb_data, ports);
+    int ports[4]={9927, 9928, 9929, 9930};
+
+    myfs_init(&bb_data, ports);
 
     // turn over control to fuse
     fprintf(stderr, "about to call fuse_main\n");

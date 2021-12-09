@@ -1,6 +1,12 @@
 #include <sys/socket.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <unistd.h>
 
 //this is only used in msg, i.e. create a connection. Data transmission doesn't use this
 typedef struct msg_header {
@@ -27,7 +33,7 @@ int sendn(int sd, char* buf, int length){
     return length;
 }
 
-int sendn(int sd, MSG* msg, char* payload, int length){
+int sendm(int sd, MSG* msg, char* payload, int length){
     char * buf;
     buf=(char*)malloc((length+sizeof(MSG))*sizeof(char));
     memcpy(buf, msg, sizeof(MSG));
@@ -54,7 +60,7 @@ int recvn(int sd, char* buf, int length){
     return length;
 }
 
-int recvn(int sd, MSG* msg, char* payload, int length){
+int recvm(int sd, MSG* msg, char* payload, int length){
     char * buf;
     buf=(char*)malloc((length+sizeof(MSG))*sizeof(char));
     int ret = recvn(sd, buf, length+sizeof(MSG));
@@ -64,6 +70,3 @@ int recvn(int sd, MSG* msg, char* payload, int length){
     return ret;
 }
 
-char* get_filename(char* path){
-    return strrchr(path, '/');
-}

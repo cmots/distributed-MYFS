@@ -39,7 +39,7 @@ int server_read(int sd, int fd, uint64_t file_size){
         offset+=packet_size;
         left_size-=packet_size;
     }
-    munmap(file_data);
+    munmap(file_data, file_size);
     return 0;
 }
 

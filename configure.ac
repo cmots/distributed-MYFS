@@ -11,7 +11,7 @@ AC_CONFIG_HEADERS([src/config.h])
 AC_PROG_CC
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h limits.h stdlib.h string.h sys/statvfs.h unistd.h utime.h sys/xattr.h])
+AC_CHECK_HEADERS([fcntl.h limits.h stdlib.h string.h sys/statvfs.h unistd.h utime.h sys/xattr.h sys/socket.h errno.h sys/mman.h math.h pthread.h])
 
 # Check for FUSE development environment
 PKG_CHECK_MODULES(FUSE, fuse)
