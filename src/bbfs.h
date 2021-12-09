@@ -35,9 +35,22 @@ uint64_t get_split_size(uint64_t real_size){
     return ceil(real_size/3);
 }
 
-int split(int fd, char *meta_path){
+int split(int fd, char *meta_path, uint64_t real_size){
     msg_log("Start to split file locally\n");
-    char* file_data = (uint8_t*)mmap(0, file_size, PROT_READ, MAP_SHARED, fd, 0);
+    THREAD_DATA ths[3];
+    pthread_t pid[3];
+    uint64_t new_size = get_split_size(real_size);
+    uint64_t left_size = real_size;
+    // char* file_data = (uint8_t*)mmap(0, file_size, PROT_READ, MAP_SHARED, fd, 0);
+    int i = 0;
+    for(i = 0;i < 3;i++){
+        ths[i].sd = fd;
+        strcpy(ths[i].filename, meta_path);
+        ths[i].file_size = left_size<new_size?left_size:real_size;
+        ths[i].id=id;
+        pthread_create(&pid[i], NULL, p_client_split, (void*)&ths[i]);
+        left_size-=new_size;
+    }
 
 }
 
@@ -76,11 +89,18 @@ int myfs_write(char *filename){
     if(real_size > BB_DATA->threshold){
         //large file
         split();
-        message.file_length=get_split_size(real_size);
+        uint64_t common_split_len=get_split_size(real_size);
         pthread_t pid[4];
         THREAD_DATA ths[4];
         log_msg("Start remote write (large file mode) -> %s\n", filename);
         for(i=0;i<4;i++){
+            
+            if(i==2){
+                message.file_length = real_size - common_split_len - common_split_len;
+            }
+            else{
+                message.file_length = common_split_len;
+            }
             MSG response;
             int ret = sendn(ths[i].sd, &message, filename, PATH_MAX);
             if(ret<0){
@@ -275,7 +295,7 @@ int myfs_read(char *filename){
 
 void* p_client_split(void *arg){
     THREAD_DATA *th = (*THREAD_DATA) arg;
-    int fd = th->sd;
+    int fd = th->sd;    //source file
     char path[PATH_MAX];
     char id = th->id + 48;
     char suffix[3] = {'-',id,'\0'};
