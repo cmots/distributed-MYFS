@@ -5,260 +5,325 @@
 #include <pthread.h>
 #include <math.h>
 #include <string.h>
+
 #define PATH_MAX 240
 #define BUFF_SIZE 8*1024
 
 bool is_write = false;
 
-typedef struct thread_data{
+typedef struct thread_data {
     int sd;
-    int result;
-    char filename[PATH_MAX];
     uint64_t file_size;
-    int id;
+    char *buff; //a huge buff in memory
+    int fd;
+    int offset;
 } THREAD_DATA;
 
-static void bb_fullpath(char fpath[PATH_MAX], const char *path)
-{
+static void bb_fullpath(char fpath[PATH_MAX], const char *path) {
     strcpy(fpath, BB_DATA->rootdir);
     strncat(fpath, path, PATH_MAX); // ridiculously long paths will
     log_msg("    bb_fullpath:  rootdir = \"%s\", path = \"%s\", fpath = \"%s\"\n",
             BB_DATA->rootdir, path, fpath);
 }
 
-void get_meta_path(char meta_path[PATH_MAX], char *filename){
+void get_meta_path(char meta_path[PATH_MAX], char *filename) {
     strcpy(meta_path, BB_DATA->metadir);
     strncat(meta_path, filename, PATH_MAX);
 }
 
-uint64_t get_split_size(uint64_t real_size){
-    return ceil(real_size/3);
+uint64_t get_split_size(uint64_t real_size) {
+    return ceil(real_size / 3);
 }
 
-int split(int fd, char *meta_path, uint64_t real_size){
-    msg_log("Start to split file locally\n");
-    THREAD_DATA ths[3];
-    pthread_t pid[3];
-    uint64_t new_size = get_split_size(real_size);
-    uint64_t left_size = real_size;
-    // char* file_data = (uint8_t*)mmap(0, file_size, PROT_READ, MAP_SHARED, fd, 0);
-    int i = 0;
-    for(i = 0;i < 3;i++){
-        ths[i].sd = fd;
-        strcpy(ths[i].filename, meta_path);
-        ths[i].file_size = left_size<new_size?left_size:real_size;
-        ths[i].id=id;
-        pthread_create(&pid[i], NULL, p_client_split, (void*)&ths[i]);
-        left_size-=new_size;
+int recover(int sd, int fd, uint64_t file_size, int down_id, char* filename) {
+    msg_log("Start to recover\n");
+    char *file_data = (uint8_t *) mmap(0, file_size, PROT_READ, MAP_SHARED, fd, 0);
+
+    MSG message;
+    MSG response;
+    message.flag = 'R';
+    message.payload_length = PATH_MAX;
+    uint64_t pos[3];
+    pos[3]=0;
+    uint64 common_split_len = get_split_size(file_size);
+    switch (down_id) {
+        case 0:
+            uint64 recover_len = common_split_len;
+            pos[0]=common_split_len;
+            pos[1]=common_split_len+common_split_len;
+            break;
+        case 1:
+            uint64 recover_len = common_split_len;
+            pos[0]=0;
+            pos[1]=common_split_len+common_split_len;
+            break;
+        case 2:
+            uint64 recover_len = file_size-common_split_len-common_split_len;
+            pos[0]=0;
+            pos[1]=common_split_len;
+            break;
+        default:
+            log_msg("Fatal: down server id is: %d\n", down_id);
     }
 
-}
+    uint64_len recover_offset = down_id*common_split_len;
 
-int combine(){
-
-
-    msg_log("Finish combination and remote read complete\n");
-}
-
-int recover(){
-    msg_log("Start to recover\n");
-}
-
-int myfs_write(char *filename){
-    char * local_path[PATH_MAX];
-    bb_fullpath(local_path, path);
-    int fd = open(local_path, O_RDONLY);
-    if(fd < 0){
-        msg_log("File doesn't exist: %s\n",local_path); 
+    sendn(BB_DATA->SD[3], &message, filename, PATH_MAX);
+    recvn(BB_DATA->SD[3], &response, NULL, 0);
+    if (response.flag == 'N') {
+        //useless
+        log_msg("Fatal: Remote file doesn't exist: Server %d: %s \n", i, filename);
         return -1;
     }
+    if (response.flag == 'r') {
+        uint64_t left_size = recover_len;
+        int packet_size = BUFF_SIZE;
+        uint64_t offset = recover_offset;
+        char *receive_buff;
+        char *recover_buff;
+        receive_buff = (char *) malloc(BUFF_SIZE * sizeof(char));
+        recover_buff = (char *) malloc(BUFF_SIZE * sizeof(char));
+        int i=0;
+        while (left_size > 0) {
+            packet_size = left_size < BUFF_SIZE ? left_size : BUFF_SIZE;
+            recvn(sd, receive_buff, packet_size);
+            for(i=0;i<packet_size;i++) {
+                recover_buff[i] = file_data[pos[0]++] ^ file_data[pos[1]++] ^ file_data[pos[2]++];
+            }
+            pwrite(fd, recover_buff, packet_size, offset);
+            offset += packet_size;
+            left_size -= packet_size;
+        }
+    }
+}
+
+int get_parity(char *source_data, char *parity_buff, uint64_t file_size) {
+    uint64_t common_split_len = get_split_size(file_size);
+    uint64_t pos = 0;
+
+    for(pos = 0;pos<common_split_len;pos++){
+        parity_buff[pos]=source_data[pos]^source_data[pos+common_split_len];
+        parity_buff[pos]^=pos+common_split_len+common_split_len>file_size?0:source_data[pos+common_split_len+common_split_len];
+    }
+    return 0;
+}
+
+int myfs_write(char *filename) {
+    char *local_path[PATH_MAX];
+    bb_fullpath(local_path, path);
+    int fd = open(local_path, O_RDONLY);
+    if (fd < 0) {
+        msg_log("File doesn't exist: %s\n", local_path);
+        return -1;
+    }
+
+    //get source data
     uint64_t real_size = lseek(fd, 0, SEEK_END);
     posix_fadvise(fd, 0, real_size, POSIX_FADV_WILLNEED);
-
-    int i=0;
+    char *file_data = (uint8_t *) mmap(0, real_size, PROT_READ, MAP_SHARED, fd,
+                                       0);
+    int i = 0;
 
     char meta_path[PATH_MAX];
     char meta_size_buff[9];
     get_meta_path(meta_path, filename);
-    
+
     //write a meta file here
 
     MSG message;
-    message.flag='W';
-    message.payload_length=PATH_MAX;
-    if(real_size > BB_DATA->threshold){
+    message.flag = 'W';
+    message.payload_length = PATH_MAX;
+    pthread_t pid[4];
+    THREAD_DATA ths[4];
+
+    if (real_size > BB_DATA->threshold) {
         //large file
-        split();
-        uint64_t common_split_len=get_split_size(real_size);
-        pthread_t pid[4];
-        THREAD_DATA ths[4];
+        uint64_t common_split_len = get_split_size(real_size);
+        char parity_buff[common_split_len];
+        get_parity(file_data, parity_buff, real_size);
         log_msg("Start remote write (large file mode) -> %s\n", filename);
-        for(i=0;i<4;i++){
-            
-            if(i==2){
+        uint64_t offset = 0;
+        for (i = 0; i < 4; i++) {
+            ths[i].sd=BB_DATA->SD[i];
+            if (i == 2) {
                 message.file_length = real_size - common_split_len - common_split_len;
-            }
-            else{
+            } else {
                 message.file_length = common_split_len;
             }
+            //test & build trans connection
             MSG response;
             int ret = sendn(ths[i].sd, &message, filename, PATH_MAX);
-            if(ret<0){
-                log_msg("Impossible! Server %d is down\n",i);
+            if (ret < 0) {
+                log_msg("Impossible! Server %d is down\n", i);
                 continue;
             }
+
             recvn(BB_DATA->SD[i], &response, NULL, 0);
-            if(response.flag=='N'){
+            if (response.flag == 'N') {
                 //useless
                 log_msg("Remote file cannot create: server %d: %s \n", i, filename);
                 return -1;
-            }
-            else if(response.flag == 'w'){
-                strcpy(ths[i].filename, meta_path);
+            } else if (response.flag == 'w') {
                 ths[i].file_size = message.file_length;
-                ths[i].id = i;
                 ths[i].sd = BB_DATA->SD[i];
-                ths[i].result = 0;
-                pthread_create(&pid[i], NULL, p_client_read, (void*)&ths[i]);
-            }
-            else{
+                if (i == 3) {
+                    ths[i].buff = parity_buff;
+                    ths[i].offset=0;
+                }
+                else {
+                    ths[i].buff = file_data;
+                    ths[i].offset = offset;
+                }
+                pthread_create(&pid[i], NULL, p_scatter, (void *) &ths[i]);
+            } else {
                 log_msg("Impossible! Response flag is %c\n", response.flag);
                 return -2;
             }
-    }
-    else{
+            offset += message.file_length;
+        }
+    } else {
         //small file
         log_msg("Start remote write (small file mode) -> %s\n", filename);
-        message.file_length=real_size;
+        message.file_length = real_size;
 
-        char* file_data = (uint8_t*)mmap(0, file_size, PROT_READ, MAP_SHARED, fd, 0);
-        for(i=0;i<4;i++)
-        {
-            sd=BB_DATA->SD[i];
+        for (i = 0; i < 4; i++) {
+            sd = BB_DATA->SD[i];
             MSG response;
             int ret = sendn(sd, &message, filename, PATH_MAX);
-            if(ret<0){
+            if (ret < 0) {
                 log_msg("Impossible! Server %d is down\n", i);
                 return -2;
             }
             recvn(sd, &response, NULL, 0);
-        
-            uint64_t left_size = real_size;
-
-            int packet_size = BUFF_SIZE;
-            uint64_t offset = 0;
-
-            while(left_size>0){
-                packet_size = left_size < BUFF_SIZE ? left_size: BUFF_SIZE;
-                sendn(sd,file_data+offset, packet_size);
-                pwrite(fd, receive_buff, packet_size, offset);
-                offset+=packet_size;
-                left_size-=packet_size;
-            }
-            log_msg("Remote read complete -> %s\n", local_path);
+            ths[i].sd = sd;
+            ths[i].file_size = real_size;
+            ths[i].buff = file_data;
+            pthread_create(&pid[i], NULL, p_scatter, (void *) &ths[i]);
         }
+        log_msg("Remote write complete -> %s\n", filename);
     }
+    for(i=0;i<4;i++)
+        pthread_join(pid[i],NULL);
+    munmap(file_data);
     close(fd);
     return 0;
 }
 
-
-int myfs_read(char *filename){
-    char * local_path[PATH_MAX];
+int myfs_read(char *filename) {
+    char *local_path[PATH_MAX];
     bb_fullpath(local_path, path);
     int fd = open(local_path, O_RDONLY);
-    int down_server_id = -1;
 
-    if(fd > 0)
-    {
+    if (fd > 0) {
         log_msg("%s exists locally\n", local_path);
         return 0;   //file exists locally
     }
-    int i=0;
-    pthread_t pid[4];
-    THREAD_DATA ths[4];
 
+    //get metadata locally
     char meta_path[PATH_MAX];
     uint64_t real_size;
     char meta_size_buff[9];
     get_meta_path(meta_path, filename);
     fd = open(meta_path, O_RDONLY);
-    if(fd > 0){
+    if (fd > 0) {
         pread(fd, meta_size_buff, 9);
-        char* temptr;
+        char *temptr;
         real_size = strtoul(meta_size_buff, temptr, 10);
-    }
-    else
-    {
+    } else {
         log_msg("Remote file doesn't exist: %s \n", filename);
         return -1;
     }
     close(fd);
 
+    fd = open(local_path, O_WRONLY | O_CREAT);
+    if (fd < 0) {
+        log_msg("Fatal: Open or Create failed: %s\n", local_path);
+    }
+    int i = 0;
+    pthread_t pid[4];
+    THREAD_DATA ths[4];
+    uint64_t offset=0;    //offset in each thread
 
     MSG message;
-    message.flag='R';
-    message.payload_length=PATH_MAX;
+    message.flag = 'R';
+    message.payload_length = PATH_MAX;
 
-    if(real_size > BB_DATA->threshold){
+    int down_server_id = -1;
+    uint64_t common_split_len = get_split_size(real_size);
+
+    if (real_size > BB_DATA->threshold) {
         //large file
         log_msg("Start remote read (large file mode): -> %s\n", local_path);
-        for(i=0;i<4;i++){
+        for (i = 0; i < 3; i++) {
             MSG response;
+            ths[i].sd = BB_DATA->SD[i];
             int ret = sendn(ths[i].sd, &message, filename, PATH_MAX);
-            if(ret<0){
-                down_server_id=i;
-                log_msg("Server %d is down\n",i);
+            if (ret < 0) {
+                down_server_id = i;
+                if(down_server_id>=0)
+                    log_msg("Fatal: More than one server is down\n");
+                log_msg("Server %d is down\n", i);
+                if(down_server_id==0||down_server_id==1){
+                    offset+=common_split_len;
+                } else if(down_server_id==2){
+                    offset+=real_size-common_split_len-common_split_len;
+                } else{
+                    msg_log("Fatal: Logistic error\n");
+                }
                 continue;
             }
             recvn(BB_DATA->SD[i], &response, NULL, 0);
-            if(response.flag=='N'){
+            if (response.flag == 'N') {
                 //useless
-                log_msg("Remote file doesn't exist: Server %d: %s \n", i, filename);
+                log_msg("Fatal: Remote file doesn't exist: Server %d: %s \n", i, filename);
                 return -1;
             }
-            if(response.flag == 'r'){
-                strcpy(ths[i].filename, meta_path);
+            if (response.flag == 'r') {
                 ths[i].file_size = response.file_length;
-                ths[i].id = i;
-                ths[i].sd = BB_DATA->SD[i];
-                ths[i].result = 0;
-                pthread_create(&pid[i], NULL, p_client_save, (void*)&ths[i]);
-            }
-            else{
+                ths[i].fd=fd;
+                ths[i].offset=offset;
+                pthread_create(&pid[i], NULL, p_get, (void *) &ths[i]);
+            } else {
                 log_msg("Impossible! Response flag is %c\n", response.flag);
                 return -2;
             }
+            offset+=response.file_length;
         }
-        if(down_server_id>=0){
-            recover();
+
+        if (down_server_id >= 0) {
+            if(down_server_id==2){
+                int recover_len=real_size-common_split_len-common_split_len;
+            }
+            else{
+                int recover_len=common_split_len;
+            }
+            recover(sd, fd, common_split_len, recover_len);
         }
-        combine();
-    }
-    else{
+        for(i=0;i<3;i++)
+            pthread_join(pid[i],NULL);
+    } else {
         //small file
         log_msg("Start remote read (small file mode): -> %s\n", local_path);
         int ret = -1;
         i = 0;
         int sd = 0;
         MSG response;
-        while(ret<0)
-        {
-            sd=BB_DATA->SD[i];
+        while (ret < 0) {
+            sd = BB_DATA->SD[i];
             ret = sendn(sd, &message, filename, PATH_MAX);
-            if(ret<0){
+            if (ret < 0) {
                 log_msg("Server %d is down\n", i);
                 i++;
                 continue;
             }
             recvn(sd, &response, NULL, 0);
         }
-        if(response.flag=='N'){
+        if (response.flag == 'N') {
             //useless
             log_msg("Remote file doesn't exist: Server %d: %s \n", i, filename);
             return -1;
         }
-        if(response.flag!='r'){
+        if (response.flag != 'r') {
             log_msg("Impossible! Response flag is %c\n", response.flag);
             return -2;
         }
@@ -266,111 +331,64 @@ int myfs_read(char *filename){
         uint64_t left_size = real_size;
 
         //delete here
-        if(response.file_length!=real_size)
+        if (response.file_length != real_size)
             log_msg("WRONG in file size!!!\n");
 
         int packet_size = BUFF_SIZE;
         uint64_t offset = 0;
 
-        char* receive_buff;
-        receive_buff=(char*)malloc(BUFF_SIZE*sizeof(char));
+        char *receive_buff;
+        receive_buff = (char *) malloc(BUFF_SIZE * sizeof(char));
 
-        int fd = open(local_path, O_WRONLY | O_CREAT);
-        if(fd < 0){
-            perror("Open or Create failed":);
-        }
-        while(left_size>0){
-            packet_size = left_size < BUFF_SIZE ? left_size: BUFF_SIZE;
+        while (left_size > 0) {
+            packet_size = left_size < BUFF_SIZE ? left_size : BUFF_SIZE;
             recvn(sd, receive_buff, packet_size);
             pwrite(fd, receive_buff, packet_size, offset);
-            offset+=packet_size;
-            left_size-=packet_size;
+            offset += packet_size;
+            left_size -= packet_size;
         }
         log_msg("Remote read complete -> %s\n", local_path);
-        close(fd);
         free(receive_buff);
     }
+    close(fd);
     return 0;
 }
 
-void* p_client_split(void *arg){
-    THREAD_DATA *th = (*THREAD_DATA) arg;
-    int fd = th->sd;    //source file
-    char path[PATH_MAX];
-    char id = th->id + 48;
-    char suffix[3] = {'-',id,'\0'};
-    strcpy(path, th->filename);
-    strncat(path, suffix, PATH_MAX);
-
-    char* file_data = (uint8_t*)mmap(0, th->file_size, PROT_READ, MAP_SHARED, fd, 
-            (th->id)*(th->file_size));
-
-    int split_fd = open(path, O_WRONLY | O_CREAT | O_TRUNC);
-    if(split_fd < 0){
-        msg_log("Open or create local temp splited file failed: %s\n", path);
-    }
-    
-    pwrite(split_fd, file_data, th->file_size, 0);
-    munmap(file_data);
-    close(split_fd);
-    pthread_exit(NULL);
-}
-
-void* p_client_save(void *arg){
+void *p_get(void *arg) {
     THREAD_DATA *th = (*THREAD_DATA) arg;
     uint64_t left_size = th->file_size;
     int packet_size = BUFF_SIZE;
-    uint64_t offset = 0;
-    
-    char* receive_buff;
-    receive_buff=(char*)malloc(BUFF_SIZE*sizeof(char));
-    char path[PATH_MAX];
-    char id = th->id + 48;
-    char suffix[3] = {'-',id,'\0'};
-    strcpy(path, th->filename;
-    strncat(path, suffix, PATH_MAX);
+    uint64_t offset = th->offset;
+    int sd=th->sd;
+    int fd=th->fd;
 
-    int fd = open(path, O_WRONLY | O_CREAT);
-    if(fd < 0){
-        msg_log("Open or create local temp splited file failed: %s\n", path);
-    }
-    while(left_size>0){
-        packet_size = left_size < BUFF_SIZE ? left_size: BUFF_SIZE;
+    char *receive_buff;
+    receive_buff = (char *) malloc(BUFF_SIZE * sizeof(char));
+
+    while (left_size > 0) {
+        packet_size = left_size < BUFF_SIZE ? left_size : BUFF_SIZE;
         recvn(sd, receive_buff, packet_size);
         pwrite(fd, receive_buff, packet_size, offset);
-        offset+=packet_size;
-        left_size-=packet_size;
+        offset += packet_size;
+        left_size -= packet_size;
     }
-    close(fd);
     free(receive_buff);
     pthread_exit(NULL);
 }
 
-void* p_client_read(void *arg){
+void *p_scatter(void *arg) {
     THREAD_DATA *th = (*THREAD_DATA) arg;
+
     uint64_t left_size = th->file_size;
     int packet_size = BUFF_SIZE;
-    uint64_t offset = 0;
+    uint64_t offset = th->offset;
 
-    char path[PATH_MAX];
-    char id = th->id + 48;
-    char suffix[3] = {'-',id,'\0'};
-    strcpy(path, th->filename);
-    strncat(path, suffix, PATH_MAX);
+    while (left_size > 0) {
+        packet_size = left_size < BUFF_SIZE ? left_size : BUFF_SIZE;
+        sendn(sd, th->file_data + offset, packet_size);
+        offset += packet_size;
+        left_size -= packet_size;
+    }
 
-    int fd = open(path, O_RDONLY);
-    if(fd < 0){
-        msg_log("Open splited file failed:%s\n",path);
-    }
-    char* file_data = (uint8_t*)mmap(0, th->file_size, PROT_READ, MAP_SHARED, fd, 0);
-    while(left_size>0){
-        packet_size = left_size < BUFF_SIZE ? left_size: BUFF_SIZE;
-        sendn(sd, file_data+offset, packet_size);
-        pwrite(fd, receive_buff, packet_size, offset);
-        offset+=packet_size;
-        left_size-=packet_size;
-    }
-    close(fd);
-    munmap(file_data);
     pthread_exit(NULL);
 }
