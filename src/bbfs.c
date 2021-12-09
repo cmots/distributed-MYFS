@@ -22,21 +22,10 @@
   bbfs.log, in the directory from which you run bbfs.
 */
 #include "config.h"
-#include "params.h"
 #include "bbfs.h"
 
-#include <ctype.h>
 #include <dirent.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <fuse.h>
 #include <libgen.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
 
 #ifdef HAVE_SYS_XATTR_H
 #include <sys/xattr.h>
@@ -946,7 +935,7 @@ int main(int argc, char *argv[])
     
     int ports[4]={9927, 9928, 9929, 9930};
 
-    myfs_init(&bb_data, ports);
+    myfs_init(bb_data, ports);
 
     // turn over control to fuse
     fprintf(stderr, "about to call fuse_main\n");

@@ -1,14 +1,24 @@
 #include "trans.h"
 #include "log.h"
 #include "params.h"
+
 #include <unistd.h>
 #include <pthread.h>
 #include <math.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <fcntl.h>
+#include <fuse.h>
+#include <sys/statvfs.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <limits.h>
+#include <sys/types.h>
 
-#define PATH_MAX 240
+//#define PATH_MAX 240
 #define BUFF_SIZE 8*1024
 
 int is_write = 0;
@@ -23,6 +33,30 @@ typedef struct thread_data {
 
 void *p_scatter(void *);
 void *p_get(void *);
+
+//util function
+char *ultostr(unsigned long num, unsigned base) {
+    static char string[64] = {'\0'};
+    size_t max_chars = 64;
+    char remainder;
+    int sign = 0;
+    if (base < 2 || base > 36) {
+        return NULL;
+    }
+    for (max_chars --; max_chars > sign && num != 0; max_chars --) {
+        remainder = (char)(num % base);
+        if ( remainder <= 9 ) {
+            string[max_chars] = remainder + '0';
+        } else {
+            string[max_chars] = remainder - 10 + 'A';
+        }
+        num /= base;
+    }
+    if (max_chars > 0) {
+        memset(string, '\0', max_chars + 1);
+    }
+    return string + max_chars + 1;
+}
 
 static void bb_fullpath(char fpath[PATH_MAX], const char *path) {
     strcpy(fpath, BB_DATA->rootdir);
@@ -41,7 +75,7 @@ uint64_t get_split_size(uint64_t real_size) {
 }
 
 int recover(int sd, int fd, uint64_t file_size, int down_id, char* filename) {
-    msg_log("Start to recover\n");
+    log_msg("Start to recover\n");
     char *file_data = (uint8_t *) mmap(0, file_size, PROT_READ, MAP_SHARED, fd, 0);
 
     MSG message;
@@ -50,7 +84,7 @@ int recover(int sd, int fd, uint64_t file_size, int down_id, char* filename) {
     message.payload_length = PATH_MAX;
     uint64_t pos[3];
     pos[3]=0;
-    uint64 common_split_len = get_split_size(file_size);
+    uint64_t common_split_len = get_split_size(file_size);
     uint64_t recover_len=0;
     switch (down_id) {
         case 0:
@@ -72,7 +106,7 @@ int recover(int sd, int fd, uint64_t file_size, int down_id, char* filename) {
             log_msg("Fatal: down server id is: %d\n", down_id);
     }
 
-    uint64_len recover_offset = down_id*common_split_len;
+    uint64_t recover_offset = down_id*common_split_len;
 
     sendm(BB_DATA->SD[3], &message, filename, PATH_MAX);
     recvm(BB_DATA->SD[3], &response, NULL, 0);
@@ -123,7 +157,7 @@ int myfs_write(char *filename) {
     bb_fullpath(local_path, filename);
     int fd = open(local_path, O_RDONLY);
     if (fd < 0) {
-        msg_log("File doesn't exist: %s\n", local_path);
+        log_msg("File doesn't exist: %s\n", local_path);
         return -1;
     }
 
@@ -135,7 +169,8 @@ int myfs_write(char *filename) {
     int i = 0;
 
     char meta_path[PATH_MAX];
-    char meta_size_buff[9];
+    char* meta_size_buff;
+    meta_size_buff = malloc(sizeof(char)*9);
     get_meta_path(meta_path, filename);
 
     //write a meta file here
@@ -218,11 +253,11 @@ int myfs_write(char *filename) {
     close(fd);
 
     fd = open(meta_path, O_WRONLY | O_CREAT);
-    char* temptr;
-    meta_size_buff = ultostr(real_size, temptr, 10);
+    meta_size_buff = ultostr(real_size, 10);
     write(fd, meta_size_buff, 9);
     close(fd);
     remove(local_path);
+    free(meta_size_buff);
     return 0;
 }
 
@@ -285,7 +320,7 @@ int myfs_read(char *filename) {
                 } else if(down_server_id==2){
                     offset+=real_size-common_split_len-common_split_len;
                 } else{
-                    msg_log("Fatal: Logistic error\n");
+                    log_msg("Fatal: Logistic error\n");
                 }
                 continue;
             }
@@ -314,7 +349,7 @@ int myfs_read(char *filename) {
             else{
                 int recover_len=common_split_len;
             }
-            recover(BB_DATA->sd[down_server_id], fd, real_size, down_server_id, filename);
+            recover(BB_DATA->SD[down_server_id], fd, real_size, down_server_id, filename);
         }
         for(i=0;i<3;i++)
             pthread_join(pid[i],NULL);
@@ -372,7 +407,7 @@ int myfs_read(char *filename) {
 }
 
 void *p_get(void *arg) {
-    THREAD_DATA *th = (*THREAD_DATA) arg;
+    THREAD_DATA *th = (THREAD_DATA*) arg;
     uint64_t left_size = th->file_size;
     int packet_size = BUFF_SIZE;
     uint64_t offset = th->offset;
@@ -394,7 +429,7 @@ void *p_get(void *arg) {
 }
 
 void *p_scatter(void *arg) {
-    THREAD_DATA *th = (*THREAD_DATA) arg;
+    THREAD_DATA *th = (THREAD_DATA*) arg;
 
     uint64_t left_size = th->file_size;
     int packet_size = BUFF_SIZE;

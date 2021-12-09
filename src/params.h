@@ -10,7 +10,6 @@
 
 #ifndef _PARAMS_H_
 #define _PARAMS_H_
-#include <stdint.h>
 
 // The FUSE API has been changed a number of times.  So, our code
 // needs to define the version of the API that we assume.  As of this
@@ -24,6 +23,7 @@
 // maintain bbfs state in here
 #include <limits.h>
 #include <stdio.h>
+#include <stdint.h>
 struct bb_state {
     FILE *logfile;
     char *rootdir;

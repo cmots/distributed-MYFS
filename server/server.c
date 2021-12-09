@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
     int addr_len = sizeof(client_addr);
     int client_sd;
     client_sd = accept(sd, (struct sockaddr *) &client_addr, &addr_len);
-    printf("Connection build. From port - %ld.\n", client_addr.sin_port);
+    printf("Connection build. From port - %d.\n", client_addr.sin_port);
 
     if (client_sd < 0) {
         printf("accept error: %s (Errno: %d)\n", strerror(errno), errno);

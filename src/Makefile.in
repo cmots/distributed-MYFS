@@ -255,7 +255,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-bbfs_SOURCES = bbfs.c log.c log.h  params.h
+bbfs_SOURCES = bbfs.c log.c log.h params.h trans.h 
 AM_CFLAGS = @FUSE_CFLAGS@
 LDADD = @FUSE_LIBS@
 all: config.h

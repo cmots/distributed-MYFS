@@ -6,8 +6,10 @@ AC_INIT([fuse-tutorial], [2018-02-04], [joseph@pfeifferfamily.net])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/bbfs.c])
 AC_CONFIG_HEADERS([src/config.h])
+#AC_CONFIG_HEADERS([server/config.h])
 
 # Checks for programs.
+CFLAGS=-w
 AC_PROG_CC
 
 # Checks for header files.

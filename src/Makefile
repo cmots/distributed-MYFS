@@ -255,7 +255,7 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-bbfs_SOURCES = bbfs.c log.c log.h  params.h
+bbfs_SOURCES = bbfs.c log.c log.h params.h trans.h 
 AM_CFLAGS = -D_FILE_OFFSET_BITS=64 -I/usr/include/fuse
 LDADD = -lfuse -pthread
 all: config.h
