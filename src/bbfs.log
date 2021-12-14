@@ -1,0 +1,145 @@
+
+bb_init()
+    conn:
+    proto_major = 7
+    proto_minor = 26
+    async_read = 1
+    max_write = 131072
+    max_readahead = 131072
+    capable = 00000ffb
+    want = 00000010
+    max_background = 0
+    congestion_threshold = 0
+    context:
+    fuse = 0031d7a0
+    uid = 0
+    gid = 0
+    pid = 0
+    private_data = 0031c2a0
+    logfile = 0031d2f0
+    rootdir = /home/csci4180/fuse-tutorial-2018-02-04/example/rootdir
+    umask = 00000
+
+bb_getattr(path="/", statbuf=0x4433ac10)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 1807
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x61b22f10
+    st_mtime = 0x61b22ecd
+    st_ctime = 0x61b22ecd
+
+bb_getattr(path="/8kfile", statbuf=0x4433ac40)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 378
+    st_mode = 0100664
+    st_nlink = 1
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 8192
+    st_blksize = 4096
+    st_blocks = 16
+    st_atime = 0x61b230e6
+    st_mtime = 0x61b230e6
+    st_ctime = 0x61b230e6
+
+bb_open(path"/8kfile", fi=0x4433acf0)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    open returned 9
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000009
+    lock_owner = 0x0000000000000000
+
+bb_getxattr(path = "/8kfile", name = "security.capability", value = 0x00000000, size = 0)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lgetxattr returned -1
+    ERROR lgetxattr: No data available
+
+bb_truncate(path="/8kfile", newsize=0)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    truncate returned 0
+
+bb_getattr(path="/8kfile", statbuf=0x4433ab70)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lstat returned 0
+    si:
+    st_dev = 2049
+    st_ino = 378
+    st_mode = 0100664
+    st_nlink = 1
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 4096
+    st_blocks = 0
+    st_atime = 0x61b230e6
+    st_mtime = 0x61b23237
+    st_ctime = 0x61b23237
+
+bb_getxattr(path = "/8kfile", name = "security.capability", value = 0x00000000, size = 0)
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"
+    lgetxattr returned -1
+    ERROR lgetxattr: No data available
+
+bb_write(path="/8kfile", buf=0x4433c060, size=4096, offset=0, fi=0x4433ad50)
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000009
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000009
+    lock_owner = 0x0000000000000000
+    pwrite returned 4096
+
+bb_write(path="/8kfile", buf=0x4433c060, size=4096, offset=4096, fi=0x4433ad50)
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000009
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000009
+    lock_owner = 0x0000000000000000
+    pwrite returned 4096
+
+bb_flush(path="/8kfile", fi=0x4433acf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000009
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000009
+    lock_owner = 0x9cc70c57c2e1a84d
+
+bb_release(path="/8kfile", fi=0x4433acf0)
+    fi:
+    flags = 0x00008001
+    fh_old = 0x00000009
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000009
+    lock_owner = 0x0000000000000000
+Let's see is_write is: 1
+    bb_fullpath:  rootdir = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir", path = "/8kfile", fpath = "/home/csci4180/fuse-tutorial-2018-02-04/example/rootdir/8kfile"

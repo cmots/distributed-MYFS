@@ -207,7 +207,7 @@ AUTOMAKE = ${SHELL} /home/csci4180/fuse-tutorial-2018-02-04/missing automake-1.1
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -w
+CFLAGS = -g -O2
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo

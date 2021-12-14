@@ -283,7 +283,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
     int retstat = 0;
     int fd;
     char fpath[PATH_MAX];
-    
+
     log_msg("\nbb_open(path\"%s\", fi=0x%08x)\n",
 	    path, fi);
     bb_fullpath(fpath, path);
@@ -293,7 +293,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
     // file descriptor is exactly -1.
     fd = log_syscall("open", open(fpath, fi->flags), 0);
     if (fd < 0)
-	retstat = log_error("open");
+		retstat = log_error("open");
 	
     fi->fh = fd;
 
@@ -322,13 +322,14 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
     int retstat = 0;
-    myfs_read(path);
     log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
 	    path, buf, size, offset, fi);
     // no need to get fpath on this one, since I work from fi->fh not the path
     log_fi(fi);
-
-    return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
+	if(!is_read)
+		log_syscall("myfs_read", myfs_read(path), 0);
+	is_read=1;
+	return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
 }
 
 /** Write data to an open file
@@ -433,12 +434,29 @@ int bb_release(const char *path, struct fuse_file_info *fi)
 	  path, fi);
     log_fi(fi);
     
-    if(is_write)
-        myfs_write(path);
+	if(is_read){
+		is_read = 0;
+		char fpath[PATH_MAX];
+		bb_fullpath(fpath, path);
+		log_syscall("close", close(fi->fh), 0);
+		log_syscall("remove root file & create fake file", remove(fpath), 0);
+		int fd = open(fpath, O_WRONLY | O_CREAT, S_IRWXU | S_IRWXO);
+		pwrite(fd, "\0", 1, 0);	
+		return log_syscall("close", close(fd), 0);
+		//log_syscall("create fake file", open(fpath, O_WRONLY | O_CREAT, S_IRWXU | S_IRWXO), 0);
+	}
+
+    if(is_write){
+		is_write = 0;
+		log_syscall("close", close(fi->fh), 0);
+        return log_syscall("myfs_write", myfs_write(path), 0);
+	}
+	
+	return log_syscall("close", close(fi->fh), 0);
+	
     // We need to close the file.  Had we allocated any resources
     // (buffers etc) we'd need to free them here as well.
-    is_write = 0;
-    return log_syscall("close", close(fi->fh), 0);
+
 }
 
 /** Synchronize file contents
@@ -863,10 +881,10 @@ void bb_usage()
 }
 
 void myfs_init(struct bb_state* bb_data, int* ports){
-    
     int n = 4;
+
     char* address[4]={"10.0.54.2","10.0.54.2","10.0.54.3","10.0.54.3"};
-    int i,j=0;
+    int i=0;
 
     for(i=0;i<n;i++){
         int sd = socket(AF_INET, SOCK_STREAM, 0);
@@ -881,7 +899,7 @@ void myfs_init(struct bb_state* bb_data, int* ports){
             printf("connection error: %s (Error: %d)\n", strerror(errno), errno);
             exit(0);
         }
-        bb_data->SD[i]=sd;
+        bb_data->SD[i]=sd;		
     }
 }
 
@@ -913,9 +931,10 @@ int main(int argc, char *argv[])
     // rootpoint or mountpoint whose name starts with a hyphen, but so
     // will a zillion other programs)
     if ((argc < 3) || (argv[argc-2][0] == '-') || (argv[argc-1][0] == '-'))
-	bb_usage();
+		bb_usage();
 
-    bb_data = malloc(sizeof(struct bb_state));
+    
+	bb_data = malloc(sizeof(struct bb_state));
     if (bb_data == NULL) {
     	perror("main calloc");
 	    abort();
@@ -929,12 +948,14 @@ int main(int argc, char *argv[])
     argc--;
     
     bb_data->threshold=10*1024*1024;
-    bb_data->metadir=realpath("meta", NULL);
-
+    bb_data->metadir = realpath("meta/", NULL);
+	// use metadata file to act as the real file
+    //bb_data->metadir = bb_data->rootdir;
+	fprintf(stderr, "Meta data dir: %s\n", bb_data->metadir);
     bb_data->logfile = log_open();
     
     int ports[4]={9927, 9928, 9929, 9930};
-
+	
     myfs_init(bb_data, ports);
 
     // turn over control to fuse

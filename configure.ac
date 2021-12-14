@@ -9,7 +9,6 @@ AC_CONFIG_HEADERS([src/config.h])
 #AC_CONFIG_HEADERS([server/config.h])
 
 # Checks for programs.
-CFLAGS=-w
 AC_PROG_CC
 
 # Checks for header files.

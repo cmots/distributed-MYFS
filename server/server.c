@@ -7,8 +7,10 @@
 
 int main(int argc, char **argv) {
     int arg_port=atoi(argv[1]);
-    char root_dir[PATH_MAX];
-    strcpy(root_dir, argv[2]);
+    char *root_dir;
+	root_dir = realpath(argv[2], NULL);
+	printf("Server's data path is: %s\n", root_dir); 
+    //strcpy(root_dir, argv[2]);
     
     int sd = socket(AF_INET, SOCK_STREAM, 0);
     long val = 1;
@@ -30,18 +32,18 @@ int main(int argc, char **argv) {
         exit(0);
     }
 
-
+	
     struct sockaddr_in client_addr;
     int addr_len = sizeof(client_addr);
     int client_sd;
     client_sd = accept(sd, (struct sockaddr *) &client_addr, &addr_len);
-    printf("Connection build. From port - %d.\n", client_addr.sin_port);
-
+	
     if (client_sd < 0) {
         printf("accept error: %s (Errno: %d)\n", strerror(errno), errno);
         exit(0);
     }
     
+    printf("Connection build. From port - %d.\n", client_addr.sin_port);
     MSG message;
     MSG response;
     char* filename;
@@ -53,7 +55,7 @@ int main(int argc, char **argv) {
         memset(filename,0,sizeof(char)*PATH_MAX);
         memset(path,0,sizeof(char)*PATH_MAX);
 
-        recvm(sd, &message, filename, PATH_MAX);
+        recvm(client_sd, &message, filename, PATH_MAX);
         strcpy(path, root_dir);
         strncat(path, filename, PATH_MAX);
         int fd;
@@ -70,9 +72,10 @@ int main(int argc, char **argv) {
                 uint64_t file_size = lseek(fd, 0, SEEK_END);
                 posix_fadvise(fd, 0, file_size, POSIX_FADV_WILLNEED);
                 response.file_length=file_size;
-                sendm(sd, &response, NULL, 0);
+				response.payload_length=0;
+                sendm(client_sd, &response, NULL, 0);
                 printf("Start remote read: %s \n", path);
-                server_read(sd, fd, file_size);
+                server_read(client_sd, fd, file_size);
                 close(fd);
                 printf("Complete remote read: %s", path);
             }
@@ -80,18 +83,20 @@ int main(int argc, char **argv) {
         }
         else if(message.flag=='W'){
             printf("Receive a write request.\n");
-            fd = open(path, O_WRONLY | O_CREAT);
+            fd = open(path, O_WRONLY | O_CREAT, S_IRWXU | S_IRWXO);
 
             if (fd < 0) {
                 response.flag='N';  //error
-                sendm(sd, &response, NULL, 0);
+                sendm(client_sd, &response, NULL, 0);
                 perror("Open failed: ");
             }
             else{
                 response.flag='w';
-                sendm(sd, &response, NULL, 0);
+				response.file_length=0;
+				response.payload_length=0;
+                sendm(client_sd, &response, NULL, 0);
                 printf("Start remote write: %s \n", path);
-                server_save(sd, fd, message.file_length);
+                server_save(client_sd, fd, message.file_length);
                 close(fd);
                 printf("Complete remote write: %s", path);
             }
