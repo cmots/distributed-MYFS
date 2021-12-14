@@ -18,11 +18,8 @@
 #include <sys/types.h>
 
 //#define PATH_MAX 240
-#define BUFF_SIZE 8*1024
-#define GLOBAL_BUFF_SIZE
+#define BUFF_SIZE 10*1024*1024
 
-char *global_buff[GLOBAL_BUFF_SIZE];
-uint64_t global_offset=0;
 int is_write = 0;
 int is_read = 0;
 
@@ -74,14 +71,15 @@ void get_meta_path(char* meta_path, char *filename) {
 }
 
 uint64_t get_split_size(uint64_t real_size) {
-	uint64_t mod = real_size % 3;
+//	return (uint64_t)ceil(real_size/3);
+	int mod = real_size % 3;
 	if(mod==1){
 		uint64_t tmp_size=real_size+2;
 		return tmp_size/3;
 	}
 	else if(mod==2){
 		uint64_t tmp_size=real_size+1;
-		return (real_size+1)/3;
+		return tmp_size/3;
 	}
 	else
 		return real_size/3;
@@ -157,13 +155,13 @@ int recover(int sd, int fd, uint64_t file_size, int down_id, char* filename) {
 
 int get_parity(char *source_data, char *parity_buff, uint64_t file_size) {
     uint64_t common_split_len = get_split_size(file_size);
+	log_msg("pos should be %lu\n", common_split_len-1);
 	uint64_t pos = 0;
-
 	for(pos = 0;pos < common_split_len;pos++){
         parity_buff[pos]=source_data[pos]^source_data[pos+common_split_len];
-        parity_buff[pos]^=pos+common_split_len+common_split_len>file_size?0:source_data[pos+common_split_len+common_split_len];
-    }
-	log_msg("Create parity. size = %ld\n", common_split_len);
+        parity_buff[pos]^=pos+common_split_len+common_split_len>=file_size?0:source_data[pos+common_split_len+common_split_len];
+	}
+	log_msg("Create parity. size = %lu\n", common_split_len);
     return 0;
 }
 
@@ -188,7 +186,7 @@ int myfs_write(char *filename) {
     char meta_path[PATH_MAX];
     get_meta_path(meta_path, filename);
 	char* parity_buff;
-	log_msg("\nStart to remote write: local %d bytes-> %s\n", real_size, local_path);
+	log_msg("\nStart to remote write: local %lu bytes-> %s", real_size, local_path);
 
     MSG message;
     message.flag = 'W';
@@ -196,12 +194,16 @@ int myfs_write(char *filename) {
     pthread_t pid[4];
     THREAD_DATA ths[4];
 
+	int ret = 0;
+
     if (real_size > BB_DATA->threshold) {
         uint64_t common_split_len = get_split_size(real_size);
 			
-        log_msg("Start remote write (large file mode) -> %s\n", filename);
+        log_msg(" <- large file mode\n");
         uint64_t offset = 0;
 		parity_buff = (char*)malloc(sizeof(char)*common_split_len);
+		memset(parity_buff, '\0', common_split_len);
+
 		get_parity(file_data, parity_buff, real_size);
 		
         for (i = 0; i < 4; i++) {
@@ -213,20 +215,18 @@ int myfs_write(char *filename) {
             }
             //test & build trans connection
             MSG response;
-            int64_t ret = sendm(ths[i].sd, &message, filename, PATH_MAX);
-			log_msg("Sending %ld bytes to server %d\n", ret, i);
-
-            if (ret < 0) {
-                log_msg("Impossible! Server %d is down\n", i);
-                continue;
-            }
+            sendm(ths[i].sd, &message, filename, PATH_MAX);
 
             ret = recvm(BB_DATA->SD[i], &response, NULL, 0);
-			log_msg("Receiving %ld bytes from server %d\n", ret, i);
+			if(ret<0){
+				log_msg("Server %d is down\n", i);
+				return -2;
+				continue;
+			}
             if (response.flag == 'N') {
                 //useless
                 log_msg("Remote file cannot create: server %d: %s \n", i, filename);
-                return -1;
+                return -2;
             } else if (response.flag == 'w') {
                 ths[i].file_size = message.file_length;
                 ths[i].sd = BB_DATA->SD[i];
@@ -247,20 +247,18 @@ int myfs_write(char *filename) {
         }
     } else {
         //small file
-        log_msg("Start remote write (small file mode) -> %s\n", filename);
+        log_msg(" <- small file mode\n");
         message.file_length = real_size;
         int sd;
         for (i = 0; i < 4; i++) {
             sd = BB_DATA->SD[i];
             MSG response;
-            int64_t ret = sendm(sd, &message, filename, PATH_MAX);
-			log_msg("Sending %ld bytes to server %d\n", ret, i);
+            sendm(sd, &message, filename, PATH_MAX);
+            ret = recvm(sd, &response, NULL, 0);
             if (ret < 0) {
                 log_msg("Impossible! Server %d is down\n", i);
                 return -2;
             }
-            ret = recvm(sd, &response, NULL, 0);
-			log_msg("Receiving %ld bytes from server %d\n", ret, i);
             ths[i].sd = sd;
             ths[i].file_size = real_size;
             ths[i].buff = file_data;
@@ -318,7 +316,7 @@ int myfs_read(char *filename) {
     }
     close(fd);
 	
-	log_msg("\nStart to remote read: %s->local :%d bytes \n", local_path, real_size);
+	log_msg("\nStart to remote read: %s->local :%lu bytes \n", local_path, real_size);
     
 	fd = open(local_path, O_WRONLY | O_CREAT, S_IRWXU | S_IRWXO);
     if (fd < 0) {
@@ -336,15 +334,32 @@ int myfs_read(char *filename) {
     int down_server_id = -1;
     uint64_t common_split_len = get_split_size(real_size);
 
+	int ret = 0;
     if (real_size > BB_DATA->threshold) {
         //large file
-        log_msg("Start remote read (large file mode): -> %s\n", local_path);
+        log_msg(" <- large file mode\n");
         for (i = 0; i < 3; i++) {
             MSG response;
             ths[i].sd = BB_DATA->SD[i];
-            int64_t ret = sendm(ths[i].sd, &message, filename, PATH_MAX);
-			log_msg("Sending %ld bytes to server %d\n", ret, i);
+            ret = sendm(ths[i].sd, &message, filename, PATH_MAX);
+			log_msg("ret = %d\n", ret);
+			if(ret < 0){
+                down_server_id = i;
+				if(down_server_id>=0)
+					log_msg("Fatal: More than one server is down\n");
+				log_msg("Server %d is down\n", i);
+				if(down_server_id==0||down_server_id==1){
+					offset+=common_split_len;
+				} else if(down_server_id==2){
+					offset+=real_size-common_split_len-common_split_len;
+				} else{
+					log_msg("Fatal: Logistic error\n");
+				}
+				continue;
+			}
             ret = recvm(BB_DATA->SD[i], &response, NULL, 0);
+			log_msg("ret = %d\n", ret);
+			log_msg("ret = %d\n", ret);
             if (ret < 0) {
                 down_server_id = i;
                 if(down_server_id>=0)
@@ -359,7 +374,6 @@ int myfs_read(char *filename) {
                 }
                 continue;
 			}
-			log_msg("Receiving %ld bytes from server %d\n", ret, i);
             if (response.flag == 'N') {
                 //useless
                 log_msg("Fatal: Remote file doesn't exist: Server %d: %s \n", i, filename);
@@ -397,14 +411,18 @@ int myfs_read(char *filename) {
 	else {
         //small file
         log_msg("Start remote read (small file mode): -> %s\n", local_path);
-        int64_t ret = -1;
+        int ret = -1;
         i = 0;
         int sd = 0;
         MSG response;
         while (ret < 0) {
             sd = BB_DATA->SD[i];
             ret = sendm(sd, &message, filename, PATH_MAX);
-			log_msg("Sending %ld bytes to server %d\n", ret, i);
+			if (ret < 0) {
+				log_msg("Server %d is down\n", i);
+				i++;
+				continue;
+			}
             ret = recvm(sd, &response, NULL, 0);
 
             if (ret < 0) {
@@ -412,7 +430,6 @@ int myfs_read(char *filename) {
                 i++;
                 continue;
             }
-			log_msg("Receiving %ld bytes from server %d\n", ret, i);
         }
         if (response.flag == 'N') {
             //useless

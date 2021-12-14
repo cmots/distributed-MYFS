@@ -19,64 +19,58 @@ typedef struct msg_header {
 
 
 //length in functions are payload len
-int64_t sendn(int sd, char* buf, int length){
-    int left_len = length;
-    int64_t copy_len = 0;
-	int64_t done = 0;
-    while(left_len>0){
-        copy_len = send(sd, buf + length - left_len, left_len, 0);
-        if(copy_len < 0){
+int sendn(int sd, char* buf, int length){
+	int64_t ret;
+    while(length){
+        ret = send(sd, buf, length, 0);
+        if(ret < 0){
             printf("Send Error: %s (Errno: %d)\n", strerror(errno), errno);
-            return -1;
+            return (int)ret;
         }
-        else if(copy_len == 0)
-            return 0;
-        left_len-=copy_len;
-		done+=copy_len;
+        else
+		{
+			buf += ret;
+			length -= ret;
+		}
     }
-    return done;
+    return 0;
 }
 
-int64_t sendm(int sd, MSG* msg, char* payload, int length){
+int sendm(int sd, MSG* msg, char* payload, int length){
     char * buf;
     buf=(char*)malloc((length+sizeof(MSG))*sizeof(char));
     memcpy(buf, msg, sizeof(MSG));
     if(length!=0)
         memcpy(buf+sizeof(MSG), payload, length);
-    int64_t ret = sendn(sd, buf, length+sizeof(MSG));
+    int ret = sendn(sd, buf, length+sizeof(MSG));
     free(buf);
-	if(ret==0)
-		ret = -1;
     return ret;
 }
 
-int64_t recvn(int sd, char* buf, int length){
-    int left_len = length;
-    int64_t copy_len = 0;
-	int64_t done;
-	while(left_len > 0){
-        copy_len = recv(sd, buf + length - left_len, left_len, 0);
-        if(copy_len < 0){
+int recvn(int sd, char* buf, int length){
+	int64_t ret;
+	while(length){
+        ret = recv(sd, buf, length, 0);
+        if(ret < 0){
             printf("Send Error: %s (Errno: %d)\n", strerror(errno), errno);
-            return -1;
+            return (int)ret;
         }
-        else if(copy_len == 0)
-            return 0;
-        left_len-=copy_len;
-		done+=copy_len;
+        else
+		{
+			buf += ret;
+			length -= ret;
+		}
     }
-    return done;
+    return 0;
 }
 
-int64_t recvm(int sd, MSG* msg, char* payload, int length){
+int recvm(int sd, MSG* msg, char* payload, int length){
     char * buf;
     buf=(char*)malloc((length+sizeof(MSG))*sizeof(char));
     int64_t ret = recvn(sd, buf, length+sizeof(MSG));
     memcpy(msg, buf, sizeof(MSG));
     memcpy(payload, buf+sizeof(MSG), length);
     free(buf);
-	if(ret==0)
-		ret = -1;
     return ret;
 }
 
