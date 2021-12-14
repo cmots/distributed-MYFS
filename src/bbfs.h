@@ -36,6 +36,7 @@ typedef struct thread_data {
 
 void *p_scatter(void *);
 void *p_get(void *);
+int myfs_ls(char *);
 
 //util function, tranform uint64_t to uint8_t
 char *ultostr(unsigned long num, unsigned base) {

@@ -101,5 +101,9 @@ int main(int argc, char **argv) {
                 printf("Complete remote write: %s", path);
             }
         }
+        else if(message.flag=='L'){
+            printf("Receive a list request.\n");
+
+        }
     }
 }
