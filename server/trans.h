@@ -23,15 +23,17 @@ int sendn(int sd, char* buf, int length){
 	int64_t ret;
     while(length){
         ret = send(sd, buf, length, 0);
-        if(ret < 0){
+		if(ret<=0)
+			return -1;
+        //if(ret < 0){
             //printf("Send Error: %s (Errno: %d)\n", strerror(errno), errno);
-            return (int)ret;
-        }
-        else
-		{
+        //    return -1;
+        //}
+        //else
+		//{
 			buf += ret;
 			length -= ret;
-		}
+		//}
     }
     return 0;
 }
@@ -51,9 +53,9 @@ int recvn(int sd, char* buf, int length){
 	int64_t ret;
 	while(length){
         ret = recv(sd, buf, length, 0);
-        if(ret < 0){
+        if(ret <= 0){
             //printf("Send Error: %s (Errno: %d)\n", strerror(errno), errno);
-            return (int)ret;
+            return -1;
         }
         else
 		{

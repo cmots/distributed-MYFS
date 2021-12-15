@@ -14,8 +14,8 @@ int server_save(int sd, int fd, uint64_t file_size)
 {
     char *receive_buff;
     receive_buff = (char *)malloc(file_size * sizeof(char));
-    recvn(sd, receive_buff, packet_size);
-    pwrite(fd, receive_buff, packet_size, offset);
+    recvn(sd, receive_buff, file_size);
+    pwrite(fd, receive_buff, file_size, 0);
 
     // char *receive_buff;
     // receive_buff = (char *)malloc(BUFF_SIZE * sizeof(char));

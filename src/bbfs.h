@@ -152,12 +152,10 @@ int recover(uint64_t file_size, int down_id, char *filename)
     }
     if (response.flag == 'r')
     {
-        uint64_t left_size = common_split_len;
-        uint64_t packet_size = BUFF_SIZE;
         uint64_t offset = recover_offset;
-
         char *receive_buff;
         receive_buff = (char *)malloc(common_split_len * sizeof(char));
+		memset(receive_buff, '\0', common_split_len);
         recvn(BB_DATA->SD[3], receive_buff, common_split_len);
 
         uint64_t i = 0;
@@ -165,7 +163,8 @@ int recover(uint64_t file_size, int down_id, char *filename)
         {
             receive_buff[i] = file_data[pos[0]++] ^ receive_buff[i] ^ (pos[1] < file_size ? file_data[pos[1]++] : 0);
         }
-        memcpy(file_data + offset, receive_buff, recover_len);
+
+        int64_t ret = pwrite(fd, receive_buff, recover_len, offset);
 
         free(receive_buff);
         receive_buff = NULL;
@@ -211,9 +210,6 @@ int myfs_write(char *filename)
     get_meta_path(meta_path, filename);
     char *parity_buff;
     log_msg("\nStart to remote write: local %lu bytes-> %s", real_size, local_path);
-    //clock_t start_t;
-
-    //start_t = clock();
 
     MSG message;
     message.flag = 'W';
@@ -321,14 +317,9 @@ int myfs_write(char *filename)
         free(parity_buff);
         parity_buff = NULL;
     }
-    //clock_t end_t;
-    //end_t = clock();
-    //double diff_time = (double)(end_t-start_t) / CLOCKS_PER_SEC;
-    //log_msg("Remote write complete. Using %f seconds\n", diff_time);
     munmap(file_data, real_size);
     close(fd);
 
-    //start_t = clock();
     log_syscall("remove local file and create a fake file\n", remove(local_path), 0);
 
     char *meta_size_buff;
@@ -343,16 +334,9 @@ int myfs_write(char *filename)
     pwrite(fd, meta_size_buff, 10, 0);
     close(fd);
 
-    //end_t = clock();
-    //diff_time = (double)(end_t-start_t) / CLOCKS_PER_SEC;
-    //log_msg("Using %f seconds. Write metadata in :%s\n", diff_time, meta_path);
     free(meta_size_buff);
     meta_size_buff = NULL;
-    //start_t = clock();
     myfs_ls(BB_DATA->metadir);
-    //end_t = clock();
-    //diff_time = (double)(end_t-start_t) / CLOCKS_PER_SEC;
-    //log_msg("List using %f seconds\n", diff_time);
     return 0;
 }
 
@@ -380,7 +364,7 @@ int myfs_read(char *filename)
     }
     close(fd);
 
-    log_msg("\nStart to remote read: %s->local :%lu bytes \n", local_path, real_size);
+    log_msg("\nStart to remote read: %s->local :%lu bytes", local_path, real_size);
 
     fd = open(local_path, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU | S_IRWXO);
     if (fd < 0)
@@ -409,7 +393,7 @@ int myfs_read(char *filename)
             MSG response;
             ths[i].sd = BB_DATA->SD[i];
             ret = sendm(ths[i].sd, &message, filename, PATH_MAX);
-            /*log_msg("ret = %d in send to server %d\n", ret, i);
+            log_msg("ret = %d in send to server %d\n", ret, i);
             if (ret < 0)
             {
                 down_server_id = i;
@@ -429,7 +413,7 @@ int myfs_read(char *filename)
                     log_msg("Fatal: Logistic error\n");
                 }
                 continue;
-            }*/
+            }
             ret = recvm(BB_DATA->SD[i], &response, NULL, 0);
             log_msg("ret = %d in receive from server %d\n", ret, i);
             if (ret < 0)
@@ -507,13 +491,6 @@ int myfs_read(char *filename)
         {
             sd = BB_DATA->SD[i];
             ret = sendm(sd, &message, filename, PATH_MAX);
-            /*log_msg("ret = %d in send to server %d\n", ret, i);
-            if (ret < 0)
-            {
-                log_msg("Server %d is down\n", i);
-                i++;
-                continue;
-            }*/
             ret = recvm(sd, &response, NULL, 0);
             log_msg("ret = %d in receive from server %d\n", ret, i);
 
@@ -600,9 +577,8 @@ int myfs_ls(char *dir_path)
                 file_size = strtoul(meta_size_buff, temptr, 10);
             }
             close(fd);
-            log_msg("%s\t\t\t%lubytes\n", di->d_name, file_size);
+            log_msg("%s\t\t\t\t%lubytes\n", di->d_name, file_size);
 
-            //		log_msg("%s\n", di->d_name);
         }
         closedir(dir);
     }
@@ -617,25 +593,8 @@ void *p_get(void *arg)
     char *receive_buff;
     receive_buff = (char *)malloc(th->file_size * sizeof(char));
     recvn(sd, receive_buff, th->file_size);
-    pwrite(fd, receive_buff, th->file_size, offset);
+    pwrite(fd, receive_buff, th->file_size, th->offset);
 
-    // uint64_t left_size = th->file_size;
-    // uint64_t packet_size = BUFF_SIZE;
-    // uint64_t offset = th->offset;
-    // int sd = th->sd;
-    // int fd = th->fd;
-
-    // char *receive_buff;
-    // receive_buff = (char *)malloc(BUFF_SIZE * sizeof(char));
-
-    // while (left_size > 0)
-    // {
-    //     packet_size = left_size < BUFF_SIZE ? left_size : BUFF_SIZE;
-    //     recvn(sd, receive_buff, packet_size);
-    //     pwrite(fd, receive_buff, packet_size, offset);
-    //     offset += packet_size;
-    //     left_size -= packet_size;
-    // }
     free(receive_buff);
     receive_buff = NULL;
     pthread_exit(NULL);
@@ -644,19 +603,7 @@ void *p_get(void *arg)
 void *p_scatter(void *arg)
 {
     THREAD_DATA *th = (THREAD_DATA *)arg;
-    sendn(th->sd, th->buff, th->file_size);
-
-    // uint64_t left_size = th->file_size;
-    // uint64_t packet_size = BUFF_SIZE;
-    // uint64_t offset = th->offset;
-
-    // while (left_size > 0)
-    // {
-    //     packet_size = left_size < BUFF_SIZE ? left_size : BUFF_SIZE;
-    //     sendn(th->sd, th->buff + offset, packet_size);
-    //     offset += packet_size;
-    //     left_size -= packet_size;
-    // }
+    sendn(th->sd, th->buff + th->offset, th->file_size);
 
     pthread_exit(NULL);
 }
