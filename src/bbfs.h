@@ -101,7 +101,7 @@ uint64_t get_split_size(uint64_t real_size)
         return real_size / 3;
 }
 
-int recover(int sd, uint64_t file_size, int down_id, char *filename)
+int recover(uint64_t file_size, int down_id, char *filename)
 {
 
     char *local_path[PATH_MAX];
@@ -122,17 +122,14 @@ int recover(int sd, uint64_t file_size, int down_id, char *filename)
     switch (down_id)
     {
     case 0:
-        recover_len = common_split_len;
         pos[0] = common_split_len;
         pos[1] = common_split_len + common_split_len;
         break;
     case 1:
-        recover_len = common_split_len;
         pos[0] = 0;
         pos[1] = common_split_len + common_split_len;
         break;
     case 2:
-        recover_len = file_size - common_split_len - common_split_len;
         pos[0] = 0;
         pos[1] = common_split_len;
         break;
@@ -145,7 +142,6 @@ int recover(int sd, uint64_t file_size, int down_id, char *filename)
     sendm(BB_DATA->SD[3], &message, filename, PATH_MAX);
     recvm(BB_DATA->SD[3], &response, NULL, 0);
 	
-	log_msg("pos[0] is :%lu \npos[1] is :%lu \nrecover offset :%lu\n", pos[0], pos[1], recover_offset);
     if (response.flag == 'N')
     {
         //useless
@@ -154,7 +150,7 @@ int recover(int sd, uint64_t file_size, int down_id, char *filename)
     }
     if (response.flag == 'r')
     {
-        uint64_t left_size = recover_len;
+        uint64_t left_size = common_split_len;
         uint64_t packet_size = BUFF_SIZE;
         uint64_t offset = recover_offset;
         char *receive_buff;
@@ -165,13 +161,14 @@ int recover(int sd, uint64_t file_size, int down_id, char *filename)
         while (left_size > 0)
         {
             packet_size = left_size < BUFF_SIZE ? left_size : BUFF_SIZE;
-			log_msg("packet size is %lu\n", packet_size);
 
-            recvn(sd, receive_buff, packet_size);
+            recvn(BB_DATA->SD[3], receive_buff, packet_size);
+
+			log_msg("before writing: packet size: %lu\n", packet_size);
+
             for (i = 0; i < packet_size; i++)
             {
 				if(pos[1]>=file_size){
-					log_msg("fuck!!!%lu\n", pos[1]);
 					recover_buff[i] = file_data[pos[0]] ^ 0 ;
 					recover_buff[i]^= receive_buff[i];
 				}
@@ -182,15 +179,30 @@ int recover(int sd, uint64_t file_size, int down_id, char *filename)
 				pos[0]+=1;
 				pos[1]+=1;
 			}
+			log_msg("left size: %lu\n", left_size);
+			log_msg("packet size: %lu\n", packet_size);
+			log_msg("file size: %lu\n", file_size);
+			log_msg("offset: %lu\n", offset);
+
             //pwrite(fd, recover_buff, packet_size, offset);
-			memcpy(file_data+offset, recover_buff, packet_size);
+			if(offset + packet_size > file_size){
+
+				packet_size = file_size - offset;
+				log_msg("fuckn\n");
+				log_msg("left_size: %lu\n", left_size);
+				
+				log_msg("packet size: %lu\n", packet_size);
+				log_msg("file size: %lu\n", file_size);
+				memcpy(file_data+offset, recover_buff, packet_size);
+				break;
+			}
+			memcpy(file_data + offset, recover_buff, packet_size);
+			log_msg("error is %d", errno);
             offset += packet_size;
+			log_msg("fuck2\n");
             left_size -= packet_size;
         }
 
-		log_msg("pos[1] is %lu\n", pos[1]);
-		log_msg("file_size is %lu\n", file_size);
-        log_msg("done: %lu\n",offset-recover_offset);
 		free(receive_buff);
         receive_buff = NULL;
         free(recover_buff);
@@ -237,9 +249,9 @@ int myfs_write(char *filename)
     get_meta_path(meta_path, filename);
     char *parity_buff;
     log_msg("\nStart to remote write: local %lu bytes-> %s", real_size, local_path);
-	clock_t start_t;
+	//clock_t start_t;
     
-	start_t = clock();
+	//start_t = clock();
 
     MSG message;
     message.flag = 'W';
@@ -347,14 +359,14 @@ int myfs_write(char *filename)
         free(parity_buff);
         parity_buff = NULL;
     }
-	clock_t end_t;
-	end_t = clock();
-	double diff_time = (double)(end_t-start_t) / CLOCKS_PER_SEC;
-    log_msg("Remote write complete. Using %f seconds\n", diff_time);
+	//clock_t end_t;
+	//end_t = clock();
+	//double diff_time = (double)(end_t-start_t) / CLOCKS_PER_SEC;
+    //log_msg("Remote write complete. Using %f seconds\n", diff_time);
     munmap(file_data, real_size);
     close(fd);
 
-	start_t = clock();
+	//start_t = clock();
     log_syscall("remove local file and create a fake file\n", remove(local_path), 0);
 
     char *meta_size_buff;
@@ -369,16 +381,16 @@ int myfs_write(char *filename)
     pwrite(fd, meta_size_buff, 10, 0);
     close(fd);
 	
-	end_t = clock();
-	diff_time = (double)(end_t-start_t) / CLOCKS_PER_SEC;
-    log_msg("Using %f seconds. Write metadata in :%s\n", diff_time, meta_path);
+	//end_t = clock();
+	//diff_time = (double)(end_t-start_t) / CLOCKS_PER_SEC;
+    //log_msg("Using %f seconds. Write metadata in :%s\n", diff_time, meta_path);
     free(meta_size_buff);
     meta_size_buff = NULL;
-	start_t = clock();
+	//start_t = clock();
     myfs_ls(BB_DATA->metadir);
-	end_t = clock();
-	diff_time = (double)(end_t-start_t) / CLOCKS_PER_SEC;
-	log_msg("List using %f seconds\n", diff_time);
+	//end_t = clock();
+	//diff_time = (double)(end_t-start_t) / CLOCKS_PER_SEC;
+	//log_msg("List using %f seconds\n", diff_time);
     return 0;
 }
 
@@ -516,7 +528,7 @@ int myfs_read(char *filename)
                 int recover_len = common_split_len;
             }
 			close(fd);
-            recover(BB_DATA->SD[down_server_id], real_size, down_server_id, filename);
+            recover(real_size, down_server_id, filename);
         }
 		else
 			close(fd);
