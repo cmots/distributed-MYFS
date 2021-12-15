@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <unistd.h>
+#include "log.h"
 
 //socket returns ssize_t, signed 64-bit...
 
@@ -23,15 +24,15 @@ int sendn(int sd, char* buf, int length){
 	int64_t ret;
     while(length){
         ret = send(sd, buf, length, 0);
-        if(ret < 0){
-            printf("Send Error: %s (Errno: %d)\n", strerror(errno), errno);
-            return (int)ret;
-        }
-        else
-		{
+        //if(ret < 0){
+            //printf("Send Error: %s (Errno: %d)\n", strerror(errno), errno);
+        //    return -1;
+        //}
+        //else
+		//{
 			buf += ret;
 			length -= ret;
-		}
+		//}
     }
     return 0;
 }
@@ -51,9 +52,9 @@ int recvn(int sd, char* buf, int length){
 	int64_t ret;
 	while(length){
         ret = recv(sd, buf, length, 0);
-        if(ret < 0){
-            printf("Send Error: %s (Errno: %d)\n", strerror(errno), errno);
-            return (int)ret;
+        if(ret <= 0){
+            //printf("Send Error: %s (Errno: %d)\n", strerror(errno), errno);
+            return -1;
         }
         else
 		{

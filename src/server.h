@@ -8,7 +8,7 @@
 #include <limits.h>
 #include <dirent.h>
 
-#define BUFF_SIZE 10 * 1024 * 1024
+#define BUFF_SIZE 1 * 1024 * 1024
 
 int server_save(int sd, int fd, uint64_t file_size)
 {
@@ -70,7 +70,7 @@ int dir_read(int sd, char * dir_path)
             msg.flag='l';
             msg.file_length=1;
             msg.payload_length=strlen(di->d_name);
-            sendm(sd, msg, di->d_name,msg.payload_length);
+            sendm(sd, &msg, di->d_name,msg.payload_length);
             
         }
         closedir(dir);

@@ -8,4 +8,4 @@ distdir:
 	cp Makefile $(distdir)
 
 mostlyclean clean distclean mainainer-clean:
-	rm -r mountdir rootdir meta bbfs.log *.test
+	rm -r mountdir rootdir meta bbfs.log *.test *.break

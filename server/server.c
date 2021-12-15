@@ -3,12 +3,16 @@
 #include "server.h"
 #include <sys/stat.h>
 
+
 //#define PATH_MAX 260
 
 int main(int argc, char **argv) {
     int arg_port=atoi(argv[1]);
     char *root_dir;
 	root_dir = realpath(argv[2], NULL);
+    if(NULL==opendir(root_dir))
+        mkdir(root_dir,0777);
+
 	printf("Server's data path is: %s\n", root_dir); 
     //strcpy(root_dir, argv[2]);
     
@@ -77,7 +81,7 @@ int main(int argc, char **argv) {
                 printf("Start remote read: %s \n", path);
                 server_read(client_sd, fd, file_size);
                 close(fd);
-                printf("Complete remote read: %s", path);
+                printf("Complete remote read: %s\n", path);
             }
             fd=-1;
         }
@@ -98,8 +102,12 @@ int main(int argc, char **argv) {
                 printf("Start remote write: %s \n", path);
                 server_save(client_sd, fd, message.file_length);
                 close(fd);
-                printf("Complete remote write: %s", path);
+                printf("Complete remote write: %s\n", path);
             }
+        }
+        else if(message.flag=='L'){
+            printf("Receive a list request.\n");
+
         }
     }
 }
