@@ -307,6 +307,7 @@ int myfs_write(char *filename)
             ths[i].file_size = real_size;
             ths[i].buff = file_data;
             pthread_create(&pid[i], NULL, p_scatter, (void *)&ths[i]);
+			log_msg("Write %lu bytes file data in server %d\n", real_size, i);
         }
     }
 
@@ -396,9 +397,9 @@ int myfs_read(char *filename)
             log_msg("ret = %d in send to server %d\n", ret, i);
             if (ret < 0)
             {
-                down_server_id = i;
                 if (down_server_id >= 0)
                     log_msg("Fatal: More than one server is down\n");
+                down_server_id = i;
                 log_msg("Server %d is down\n", i);
                 if (down_server_id == 0 || down_server_id == 1)
                 {

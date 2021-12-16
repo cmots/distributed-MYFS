@@ -628,8 +628,8 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
     de = readdir(dp);
     log_msg("    readdir returned 0x%p\n", de);
     if (de == 0) {
-	retstat = log_error("bb_readdir readdir");
-	return retstat;
+		retstat = log_error("bb_readdir readdir");
+		return retstat;
     }
 
     // This will copy the entire directory into the buffer.  The loop exits
@@ -949,9 +949,12 @@ int main(int argc, char *argv[])
     
     bb_data->threshold=10*1024*1024;
     bb_data->metadir = realpath("meta/", NULL);
+	if(NULL==opendir(bb_data->metadir))
+        mkdir(bb_data->metadir, 0777);
 	// use metadata file to act as the real file
     //bb_data->metadir = bb_data->rootdir;
 	fprintf(stderr, "Meta data dir: %s\n", bb_data->metadir);
+
     bb_data->logfile = log_open();
     
     int ports[4]={9927, 9928, 9929, 9930};
